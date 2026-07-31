@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stickman Combo Fighter</title>
+  <meta name="description" content="Stickman Combo Fighter — game fighting 2D seru dengan sistem combo, 4 power unik, mode 1P vs CPU dan 2P lokal." />
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Phaser 3 via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+  <div id="game-container"></div>
+
+  <!-- Game Modules (order matters — base classes first) -->
+  <script src="keybindings.js"></script>
+  <script src="particles.js"></script>
+  <script src="combo.js"></script>
+  <script src="player.js"></script>
+  <script src="ai.js"></script>
+  <script src="scenes/SettingsScene.js"></script>
+  <script src="scenes/MenuScene.js"></script>
+  <script src="scenes/ModeScene.js"></script>
+  <script src="scenes/PowerScene.js"></script>
+  <script src="scenes/BattleScene.js"></script>
+  <script src="scenes/ResultScene.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
