@@ -1,180 +1,486 @@
+const POWER_HTML = `
+
+<style>
+#ui-power * { box-sizing: border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        :root {
+            /* Warna Elemen Core */
+            --c-fire: #ff5500;
+            --c-ice: #3399ff;
+            --c-speed: #ffee00;
+            --c-hammer: #aa00ff;
+            
+            /* Warna UI */
+            --bg-main: #0a0a12;
+            --bg-card: #151525;
+            --bg-card-hover: #1e1e35;
+            --text-main: #ffffff;
+            --text-muted: #8b9bb4;
+        }
+
+        #ui-power { width: 960px; height: 540px; margin: 0; padding: 20px 15px; position: absolute; top: 0; left: 0; overflow: hidden;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at top, rgba(51, 153, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at bottom, rgba(255, 85, 0, 0.05) 0%, transparent 40%);
+        }
+
+        /* HEADER SECTION */
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-style: italic;
+            letter-spacing: 2px;
+            color: #cce0ff;
+            text-shadow: 0 0 10px rgba(51, 153, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        /* CARD GRID CONTAINER */
+        .card-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: nowrap;
+            max-width: 930px;
+            width: 100%;
+        }
+
+        /* INDIVIDUAL POWER CARD */
+        .card {
+            background: var(--bg-card);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            width: 215px;
+            padding: 15px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Glow effect at the top of the card based on element color */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: var(--c);
+            box-shadow: 0 0 15px var(--c);
+            transition: height 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            background: var(--bg-card-hover);
+            border-color: var(--c);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(var(--c-rgb), 0.2);
+        }
+
+        .card:hover::before {
+            height: 100%;
+            opacity: 0.05;
+        }
+
+        /* AVATAR CONTAINER */
+        .avatar-box {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--c);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8) inset, 0 0 15px var(--c);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 5px var(--c));
+            transform: translateY(6px); /* Adjust character position in circle */
+        }
+
+        /* SVG Character Styling */
+        .neon-path { stroke: var(--c); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .core-path { stroke: #000; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .solid-core { fill: #000; }
+        .glow-eye { fill: #fff; filter: drop-shadow(0 0 3px #fff); }
+        .energy-hair { fill: var(--c); opacity: 0.8; }
+
+        /* TEXT CONTENT */
+        .title {
+            font-size: 18px;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.3;
+            margin-bottom: 12px;
+            height: 32px; /* Fixed height for alignment */
+        }
+
+        /* STAT BARS */
+        .stats-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stat-row {
+            width: 100%;
+            height: 4px;
+            background: #2a2a40;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            background: var(--c);
+            border-radius: 2px;
+            box-shadow: 0 0 8px var(--c);
+        }
+
+        /* BOTTOM UI (P1, P2, Back) */
+        .bottom-ui {
+            width: 100%;
+            max-width: 930px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .back-btn {
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-btn:hover { color: #fff; }
+
+        .player-indicators {
+            display: flex;
+            gap: 100px;
+            font-size: 18px;
+            font-weight: 800;
+            font-style: italic;
+            color: #4a5568;
+        }
+        .p-indicator span { color: #fff; margin-left: 10px; }
+
+    
+</style>
+<div id="ui-power">
+  
+
+    <div class="header">
+        <h1>PLAYER 1 &mdash; PILIH POWER</h1>
+        <p>Klik kartu power yang ingin kamu gunakan</p>
+    </div>
+
+    <div class="card-container">
+        
+        <!-- 1. FIRE FIST CARD -->
+        <div class="card" id="power-fire" style="--c: var(--c-fire);">
+            <div class="avatar-box">
+                <svg class="avatar-svg" viewBox="0 0 100 100">
+                    <!-- Spiky Fire Hair -->
+                    <path class="energy-hair" d="M 50 15 Q 40 5 35 15 Q 30 5 25 20 Q 20 15 15 30 Q 20 25 25 35 Q 20 40 30 40 Q 30 30 50 25 Q 70 30 70 40 Q 80 40 75 35 Q 80 25 85 30 Q 80 15 75 20 Q 70 5 65 15 Q 60 5 50 15 Z"/>
+                    <!-- Outline & Core -->
+                    <g class="neon-path">
+                        <circle cx="50" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="3"/>
+                        <path d="M 50 54 L 50 95" /> <!-- Body -->
+                        <path d="M 50 60 L 25 75 L 35 55" /> <!-- Left Arm Guarding -->
+                        <path d="M 50 60 L 75 80 L 85 60" /> <!-- Right Arm Punching -->
+                        <circle cx="35" cy="55" r="7" fill="var(--c)"/> <!-- Left Fist -->
+                        <circle cx="85" cy="60" r="9" fill="var(--c)"/> <!-- Right Fist Flaming -->
+                    </g>
+                    <g class="core-path">
+                        <path d="M 50 54 L 50 95" />
+                        <path d="M 50 60 L 25 75 L 35 55" />
+                        <path d="M 50 60 L 75 80 L 85 60" />
+                        <circle cx="35" cy="55" r="5" class="solid-core" stroke="none"/>
+                        <circle cx="85" cy="60" r="6" class="solid-core" stroke="none"/>
+                    </g>
+                    <!-- Fierce Eyes -->
+                    <path class="glow-eye" d="M 42 35 L 47 38 L 48 35 Z"/>
+                    <path class="glow-eye" d="M 58 35 L 53 38 L 52 35 Z"/>
+                </svg>
+            </div>
+            <h3 class="title" style="color: var(--c);">FIRE FIST</h3>
+            <p class="desc">Serangan lebih mematikan, beri damage ekstra.</p>
+            <div class="stats-container">
+                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 40%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 60%;"></div></div>
+            </div>
+        </div>
+
+        <!-- 2. ICE GUARD CARD -->
+        <div class="card" id="power-ice" style="--c: var(--c-ice);">
+            <div class="avatar-box">
+                <svg class="avatar-svg" viewBox="0 0 100 100">
+                    <!-- Blocky Ice Hair -->
+                    <path class="energy-hair" d="M 30 30 L 35 15 L 45 20 L 50 10 L 55 20 L 65 15 L 70 30 Z"/>
+                    <!-- Outline & Core -->
+                    <g class="neon-path">
+                        <circle cx="50" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="3"/>
+                        <path d="M 50 54 L 50 95" /> <!-- Body -->
+                        <path d="M 50 65 L 20 70 L 35 85" /> <!-- Left Arm holding shield -->
+                        <path d="M 50 60 L 80 75" /> <!-- Right Arm down -->
+                        <!-- Ice Shield -->
+                        <path d="M 15 65 L 45 65 L 50 95 L 30 105 L 10 95 Z" fill="rgba(51, 153, 255, 0.4)" stroke="var(--c)" stroke-width="2"/>
+                    </g>
+                    <g class="core-path">
+                        <path d="M 50 54 L 50 95" />
+                        <path d="M 50 65 L 25 70 L 35 85" />
+                        <path d="M 50 60 L 80 75" />
+                    </g>
+                    <!-- Stern Eyes -->
+                    <path class="glow-eye" d="M 40 37 L 46 38 L 46 36 Z"/>
+                    <path class="glow-eye" d="M 60 37 L 54 38 L 54 36 Z"/>
+                </svg>
+            </div>
+            <h3 class="title" style="color: var(--c);">ICE GUARD</h3>
+            <p class="desc">Block lebih kuat, kurangi damage masuk secara drastis.</p>
+            <div class="stats-container">
+                <div class="stat-row"><div class="stat-fill" style="width: 100%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 100%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 100%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 40%;"></div></div>
+            </div>
+        </div>
+
+        <!-- 3. SPEED BLADE CARD -->
+        <div class="card" id="power-speed" style="--c: var(--c-speed);">
+            <div class="avatar-box">
+                <svg class="avatar-svg" viewBox="0 0 100 100">
+                    <!-- Swept-back aerodynamic hair -->
+                    <path class="energy-hair" d="M 60 30 Q 80 20 90 40 Q 75 35 65 45 Q 85 45 95 60 Q 75 55 60 55 Z"/>
+                    <!-- Outline & Core -->
+                    <g class="neon-path">
+                        <circle cx="45" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="3"/>
+                        <path d="M 45 54 L 35 95" /> <!-- Body leaning forward -->
+                        <path d="M 45 60 L 15 75 L 10 50" /> <!-- Right Arm with sword -->
+                        <path d="M 45 60 L 70 70 L 80 90" /> <!-- Left Arm back -->
+                        <!-- Katana Blade -->
+                        <path d="M 5 55 Q 15 20 40 5" stroke="var(--c)" stroke-width="3" fill="none"/>
+                    </g>
+                    <g class="core-path">
+                        <path d="M 45 54 L 35 95" />
+                        <path d="M 45 60 L 15 75 L 10 50" />
+                        <path d="M 45 60 L 70 70 L 80 90" />
+                        <path d="M 5 55 Q 15 20 40 5" stroke="#000" stroke-width="1.5" fill="none"/>
+                    </g>
+                    <!-- Sharp Eyes -->
+                    <path class="glow-eye" d="M 32 36 L 40 38 L 40 35 Z"/>
+                    <path class="glow-eye" d="M 50 38 L 47 40 L 45 37 Z"/>
+                </svg>
+            </div>
+            <h3 class="title" style="color: var(--c);">SPEED BLADE</h3>
+            <p class="desc">Serang lebih sering dengan cooldown minimal.</p>
+            <div class="stats-container">
+                <div class="stat-row"><div class="stat-fill" style="width: 80%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 50%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 70%;"></div></div>
+            </div>
+        </div>
+
+        <!-- 4. HEAVY HAMMER CARD -->
+        <div class="card" id="power-hammer" style="--c: var(--c-hammer);">
+            <div class="avatar-box">
+                <svg class="avatar-svg" viewBox="0 0 100 100">
+                    <!-- Bulky energy aura/hair -->
+                    <path class="energy-hair" d="M 35 25 Q 50 10 65 25 Q 75 35 70 50 Q 50 35 30 50 Q 25 35 35 25 Z"/>
+                    <!-- Outline & Core -->
+                    <g class="neon-path" stroke-width="5">
+                        <circle cx="50" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="4"/>
+                        <path d="M 50 54 L 50 95" /> <!-- Bulky Body -->
+                        <path d="M 50 65 L 20 55 L 25 80" /> <!-- Arms holding hammer -->
+                        <path d="M 50 65 L 80 55 L 75 80" /> 
+                        <!-- Giant Hammer -->
+                        <path d="M 50 105 L 50 50" stroke-width="4"/> <!-- Handle -->
+                        <path d="M 25 35 L 75 35 L 85 55 L 15 55 Z" fill="rgba(170, 0, 255, 0.4)" stroke="var(--c)" stroke-width="2"/>
+                    </g>
+                    <g class="core-path" stroke-width="3">
+                        <path d="M 50 54 L 50 95" />
+                        <path d="M 50 65 L 20 55 L 25 80" />
+                        <path d="M 50 65 L 80 55 L 75 80" />
+                        <path d="M 50 105 L 50 50" stroke-width="2"/>
+                        <path d="M 30 40 L 70 40 L 75 50 L 25 50 Z" fill="#000" stroke="none"/>
+                    </g>
+                    <!-- Menacing Eyes -->
+                    <path class="glow-eye" d="M 38 38 L 45 42 L 47 38 Z"/>
+                    <path class="glow-eye" d="M 62 38 L 55 42 L 53 38 Z"/>
+                </svg>
+            </div>
+            <h3 class="title" style="color: var(--c);">HEAVY HAMMER</h3>
+            <p class="desc">Heavy attack sangat kuat tapi sedikit lebih lambat.</p>
+            <div class="stats-container">
+                <div class="stat-row"><div class="stat-fill" style="width: 80%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 30%;"></div></div>
+                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM UI NAVIGATION -->
+    <div class="bottom-ui">
+        <button class="back-btn" id="btn-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back
+        </button>
+        
+        <div class="player-indicators">
+            <div class="p-indicator">P1: <span>-</span></div>
+            <div class="p-indicator">P2: <span>-</span></div>
+        </div>
+        
+        <!-- Empty div for flexbox alignment -->
+        <div style="width: 60px;"></div>
+    </div>
+
+
+</div>
+
+`;
+
 // scenes/PowerScene.js — Power/Weapon Selection
 // ===============================================
-// P1 selects first, then P2 (or CPU auto-picks).
 
 const POWER_LIST = [POWERS.fire, POWERS.ice, POWERS.speed, POWERS.heavy];
 
 class PowerScene extends Phaser.Scene {
   constructor() {
     super({ key: 'PowerScene' });
-    this._p1Selected = null;
-    this._p2Selected = null;
-    this._phase      = 'p1'; // 'p1' | 'p2' | 'done'
   }
 
-  create() {
-    this._p1Selected = null;
-    this._p2Selected = null;
-    this._phase      = 'p1';
+  
 
+  create() {
     const W = this.scale.width;
     const H = this.scale.height;
 
-    // ── Background ───────────────────────────────────────────────────────
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x0a0a1a, 0x0a0a1a, 0x12102a, 0x12102a, 1);
-    bg.fillRect(0, 0, W, H);
+    this._phase = 'p1';
+    this._p1Selected = null;
+    this._p2Selected = null;
 
-    // ── Phase indicator text ─────────────────────────────────────────────
-    this._phaseText = this.add.text(W / 2, 60, 'PLAYER 1 — PILIH POWER', {
-      fontFamily: 'Bangers, sans-serif',
-      fontSize:   '42px',
-      color:      '#7ecfff',
-      stroke:     '#1e3a5f',
-      strokeThickness: 4,
-    }).setOrigin(0.5);
+    this.ui = this.add.dom(0, 0).setOrigin(0, 0).createFromHTML(POWER_HTML);
 
-    this._subText = this.add.text(W / 2, 108, 'Klik kartu power yang ingin kamu gunakan', {
-      fontFamily: 'Inter, sans-serif',
-      fontSize:   '15px',
-      color:      '#94a3b8',
-    }).setOrigin(0.5);
+    // DOM Elements we need to update
+    this.titleEl = this.ui.node.querySelector('.header h1');
+    this.subEl = this.ui.node.querySelector('.header p');
+    this.p1Indicator = this.ui.node.querySelector('.p-indicator:nth-child(1) span');
+    this.p2Indicator = this.ui.node.querySelector('.p-indicator:nth-child(2) span');
 
-    // ── Power cards ──────────────────────────────────────────────────────
-    const cW   = 180;
-    const cH   = 220;
-    const gap  = 26;
-    const totalW = POWER_LIST.length * cW + (POWER_LIST.length - 1) * gap;
-    const startX = (W - totalW) / 2;
-    const cardY  = H / 2 + 30;
+    this.ui.addListener('click');
+    this.ui.on('click', (event) => {
+      const target = event.target.closest('.card') || event.target;
+      
+      if (target.id === 'btn-back' || target.closest('#btn-back')) {
+        this.cameras.main.fadeOut(250, 0, 0, 0);
+        this.cameras.main.once('camerafadeoutcomplete', () => {
+          this.scene.start('ModeScene');
+        });
+        return;
+      }
 
-    this._cardGfx     = [];
-    this._cardObjects = [];
+      let chosenKey = null;
+      if (target.id === 'power-fire') chosenKey = 'fire';
+      else if (target.id === 'power-ice') chosenKey = 'ice';
+      else if (target.id === 'power-speed') chosenKey = 'speed';
+      else if (target.id === 'power-hammer') chosenKey = 'heavy';
 
-    for (let i = 0; i < POWER_LIST.length; i++) {
-      const pw  = POWER_LIST[i];
-      const cx  = startX + i * (cW + gap) + cW / 2;
-
-      const gfx = this.add.graphics();
-      this._drawPowerCard(gfx, cx, cardY, cW, cH, pw, false, false);
-      this._cardGfx.push(gfx);
-
-      // Color swatch
-      const swatch = this.add.graphics();
-      swatch.fillStyle(pw.color, 1);
-      swatch.fillCircle(cx, cardY - 75, 22);
-      swatch.lineStyle(3, 0xffffff, 0.3);
-      swatch.strokeCircle(cx, cardY - 75, 22);
-
-      // Name
-      this.add.text(cx, cardY - 35, pw.name, {
-        fontFamily: 'Bangers, sans-serif',
-        fontSize:   '22px',
-        color:      '#ffffff',
-      }).setOrigin(0.5);
-
-      // Desc
-      this.add.text(cx, cardY + 10, pw.desc, {
-        fontFamily: 'Inter, sans-serif',
-        fontSize:   '12px',
-        color:      '#94a3b8',
-        wordWrap:   { width: cW - 20 },
-        align:      'center',
-      }).setOrigin(0.5);
-
-      // Stats badge
-      this._drawStatsBadge(this.add.graphics(), cx, cardY + 70, pw);
-
-      // Interactive zone
-      const zone = this.add.zone(cx, cardY, cW, cH).setInteractive({ cursor: 'pointer' });
-      const idx  = i;
-
-      zone.on('pointerover', () => {
-        if (this._phase === 'done') return;
-        this._drawPowerCard(this._cardGfx[idx], cx, cardY, cW, cH, pw, true, false);
-      });
-      zone.on('pointerout', () => {
-        if (this._phase === 'done') return;
-        const p1Chosen = this._p1Selected === pw.key;
-        const p2Chosen = this._p2Selected === pw.key;
-        this._drawPowerCard(this._cardGfx[idx], cx, cardY, cW, cH, pw, false, p1Chosen || p2Chosen);
-      });
-      zone.on('pointerdown', () => this._onCardClick(idx, pw, cx, cardY, cW, cH));
-
-      this._cardObjects.push({ zone, gfx, pw, cx, cardY, cW, cH });
-    }
-
-    // ── Selection indicators ──────────────────────────────────────────────
-    this._p1Badge = this.add.text(W / 2 - 140, H - 60, '', {
-      fontFamily: 'Bangers, sans-serif',
-      fontSize:   '20px',
-      color:      '#7ecfff',
-    }).setOrigin(0.5);
-
-    this._p2Badge = this.add.text(W / 2 + 140, H - 60, '', {
-      fontFamily: 'Bangers, sans-serif',
-      fontSize:   '20px',
-      color:      '#ff8888',
-    }).setOrigin(0.5);
-
-    this.add.text(W / 2 - 270, H - 60, 'P1:', {
-      fontFamily: 'Bangers, sans-serif',
-      fontSize:   '20px',
-      color:      '#475569',
-    }).setOrigin(0.5);
-
-    this.add.text(W / 2 + 30, H - 60, 'P2:', {
-      fontFamily: 'Bangers, sans-serif',
-      fontSize:   '20px',
-      color:      '#475569',
-    }).setOrigin(0.5);
-
-    // Back button
-    const back = this.add.text(50, H - 30, '← Back', {
-      fontFamily: 'Inter, sans-serif',
-      fontSize:   '15px',
-      color:      '#475569',
-    }).setOrigin(0, 0.5).setInteractive({ cursor: 'pointer' });
-    back.on('pointerover', () => back.setColor('#94a3b8'));
-    back.on('pointerout',  () => back.setColor('#475569'));
-    back.on('pointerdown', () => {
-      this.cameras.main.fadeOut(250, 10, 10, 26);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('ModeScene');
-      });
+      if (chosenKey) {
+        this._onCardClick(chosenKey, target);
+      }
     });
 
-    this.cameras.main.fadeIn(300, 10, 10, 26);
+    this.cameras.main.fadeIn(300, 0, 0, 0);
   }
 
-  _onCardClick(idx, pw, cx, cardY, cW, cH) {
+  _onCardClick(chosenKey, targetEl) {
     if (this._phase === 'done') return;
+    
+    const pw = POWERS[chosenKey];
 
     if (this._phase === 'p1') {
-      this._p1Selected = pw.key;
-      this._p1Badge.setText(pw.name);
-      // Mark card as selected
-      this._drawPowerCard(this._cardGfx[idx], cx, cardY, cW, cH, pw, false, true);
+      this._p1Selected = chosenKey;
+      this.p1Indicator.innerText = pw.name;
+      this.p1Indicator.style.color = pw.accentColor || '#ffffff';
 
       if (GameState.mode === '1p') {
-        // CPU picks random (different from P1 if possible)
-        const others = POWER_LIST.filter(p => p.key !== pw.key);
-        const cpuPw  = Phaser.Utils.Array.GetRandom(others);
+        const others = POWER_LIST.filter(p => p.key !== chosenKey);
+        const cpuPw = Phaser.Utils.Array.GetRandom(others);
         this._p2Selected = cpuPw.key;
-        this._p2Badge.setText(cpuPw.name + ' (CPU)');
+        this.p2Indicator.innerText = cpuPw.name + ' (CPU)';
+        this.p2Indicator.style.color = cpuPw.accentColor || '#ffffff';
         this._phase = 'done';
         this._startBattle();
       } else {
-        // 2P: switch to P2 pick
         this._phase = 'p2';
-        this._phaseText.setText('PLAYER 2 — PILIH POWER');
-        this._phaseText.setStyle({ fill: '#ff8888' });
-        this._subText.setText('Player 2: pilih power untuk bertarung!');
+        this.titleEl.innerText = 'PLAYER 2 — PILIH POWER';
+        this.titleEl.style.color = '#ff8888';
+        this.titleEl.style.textShadow = '0 0 10px rgba(255, 136, 136, 0.5)';
+        this.subEl.innerText = 'Player 2: pilih power untuk bertarung!';
       }
     } else if (this._phase === 'p2') {
-      this._p2Selected = pw.key;
-      this._p2Badge.setText(pw.name);
-      this._drawPowerCard(this._cardGfx[idx], cx, cardY, cW, cH, pw, false, true);
+      this._p2Selected = chosenKey;
+      this.p2Indicator.innerText = pw.name;
+      this.p2Indicator.style.color = pw.accentColor || '#ffffff';
       this._phase = 'done';
       this._startBattle();
     }
@@ -184,62 +490,10 @@ class PowerScene extends Phaser.Scene {
     GameState.p1Power = POWERS[this._p1Selected];
     GameState.p2Power = POWERS[this._p2Selected];
     this.time.delayedCall(400, () => {
-      this.cameras.main.fadeOut(350, 10, 10, 26);
+      this.cameras.main.fadeOut(350, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('BattleScene');
       });
     });
-  }
-
-  _drawPowerCard(gfx, cx, cy, cW, cH, pw, hovered, selected) {
-    gfx.clear();
-    const x = cx - cW / 2;
-    const y = cy - cH / 2;
-
-    if (selected) {
-      gfx.fillStyle(pw.color, 0.25);
-      gfx.lineStyle(3, pw.color, 1);
-    } else if (hovered) {
-      gfx.fillStyle(pw.color, 0.15);
-      gfx.lineStyle(2, pw.color, 0.8);
-    } else {
-      gfx.fillStyle(0x1e1b4b, 0.7);
-      gfx.lineStyle(1, pw.color, 0.3);
-    }
-    gfx.fillRoundedRect(x, y, cW, cH, 14);
-    gfx.strokeRoundedRect(x, y, cW, cH, 14);
-
-    if (selected) {
-      // Glow border
-      gfx.lineStyle(10, pw.color, 0.2);
-      gfx.strokeRoundedRect(x - 4, y - 4, cW + 8, cH + 8, 18);
-    }
-  }
-
-  _drawStatsBadge(gfx, cx, cy, pw) {
-    // Mini stat bars
-    const stats = [
-      { label: 'DMG',   val: pw.damageMul   },
-      { label: 'DEF',   val: 1 - pw.blockMul + 0.5 }, // invert for display
-      { label: 'SPD',   val: 2 - pw.attackCdMul     },
-      { label: 'HEAVY', val: pw.heavyMul / 2.5       },
-    ];
-    const bW = 100;
-    const bH = 6;
-    const bGap = 14;
-    const startY = cy - (stats.length * bGap) / 2;
-
-    for (let i = 0; i < stats.length; i++) {
-      const s  = stats[i];
-      const by = startY + i * bGap;
-      const fill = Math.min(1, Math.max(0, s.val));
-
-      // BG bar
-      gfx.fillStyle(0x334155, 0.8);
-      gfx.fillRoundedRect(cx - bW / 2, by, bW, bH, 3);
-      // Fill
-      gfx.fillStyle(pw.color, 0.9);
-      gfx.fillRoundedRect(cx - bW / 2, by, bW * fill, bH, 3);
-    }
   }
 }
