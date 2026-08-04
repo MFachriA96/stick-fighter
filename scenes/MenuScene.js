@@ -19,13 +19,11 @@ const MENU_HTML = `
             --c-hammer: #aa00ff;
         }
 
-        #ui-menu { width: 960px; height: 540px; margin: 0; padding: 0; position: absolute; top: 0; left: 0; overflow: hidden;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        #ui-menu {
+            position: absolute;
+            top: 0; left: 0;
+            width: 960px; height: 540px;
             overflow: hidden;
-            position: relative;
             background: transparent;
         }
 
@@ -85,18 +83,18 @@ const MENU_HTML = `
         }
 
         .main-menu {
-            position: relative; z-index: 10;
-            text-align: center; display: flex; flex-direction: column; align-items: center;
-            gap: 15px; margin-top: 220px;
-        }
-
-        .title-container {
-            position: relative;
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 12px;
         }
+
 
         .title-glow {
             font-family: 'Edo', sans-serif;
@@ -170,24 +168,29 @@ const MENU_HTML = `
             100% { left: -10%; top: 0%; transform: scale(0.5) rotate(20deg); opacity: 0; }
         }
 
+
         .btn {
             font-family: 'Edo', sans-serif;
-            padding: 12px 60px; font-size: 32px; font-weight: normal;
-            color: #ffffff; background: rgba(0, 0, 0, 0.7);
-            border: 3px solid #ffcc00; border-radius: 8px; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 4px; transition: all 0.1s ease-out;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
-            text-shadow: 0 2px 5px #000;
+            font-size: 38px;
+            font-weight: normal;
+            color: #ffffff;
+            width: 360px;
+            padding: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.1s ease-out;
+            border: 4px solid rgba(0,0,0,0.6);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8), inset 0 3px 12px rgba(255,255,255,0.35);
+            -webkit-text-stroke: 2px #000;
+            text-shadow: 3px 3px 0 #000, 0 4px 8px rgba(0,0,0,0.9);
         }
+        #btn-start  { background: linear-gradient(to bottom, #ffd700 0%, #ff6a00 100%); }
+        #btn-start:hover  { transform: scale(1.04); filter: brightness(1.1); box-shadow: 0 0 28px rgba(255,160,0,0.8), inset 0 3px 12px rgba(255,255,255,0.6); }
+        #btn-settings { background: linear-gradient(to bottom, #00c6ff 0%, #004e92 100%); font-size: 30px; }
+        #btn-settings:hover { transform: scale(1.04); filter: brightness(1.1); box-shadow: 0 0 28px rgba(0,180,255,0.7), inset 0 3px 12px rgba(255,255,255,0.6); }
 
-        .btn:hover {
-            background: #ffcc00; color: #000;
-            border-color: #ffffff;
-            box-shadow: 0 0 30px rgba(255, 204, 0, 0.8);
-            text-shadow: none;
-            transform: scale(1.05);
-        }
 </style>
 <div id="ui-menu">
     
@@ -203,11 +206,8 @@ const MENU_HTML = `
     <div class="main-menu">
 
         <button class="btn" id="btn-start">Start Game</button>
-        <button class="btn" id="btn-settings" style="margin-top: 15px; font-size: 24px; padding: 10px 40px; background: rgba(0,0,0,0.6); border-color: #8b9bb4; color: #c0d1eb;">Settings</button>
-        
-        <div style="font-family: 'Edo', sans-serif; color: #ffcc00; font-size: 20px; margin-top: 25px; letter-spacing: 4px; text-shadow: 2px 2px 5px #000, 0 0 10px rgba(0,0,0,0.9);">
-            CHOOSE YOUR POWER TO SURVIVE
-        </div>
+        <button class="btn" id="btn-settings">Settings</button>
+        <div style="font-family:'Edo',sans-serif;color:#ffcc00;font-size:18px;margin-top:4px;letter-spacing:4px;text-shadow:2px 2px 5px #000;-webkit-text-stroke:1px #000;">⚡ CHOOSE YOUR POWER TO SURVIVE ⚡</div>
     </div>
 
 </div>
@@ -223,50 +223,35 @@ class MenuScene extends Phaser.Scene {
   }
 
   init() {
-    // Show the video background when entering the main menu
-    const wrap = document.getElementById('bg-video-wrap');
-    if (wrap) {
-      wrap.style.display = 'block';
-      const vid = wrap.querySelector('video');
-      if (vid) vid.play();
-    }
+    const vid = document.getElementById('bg-video');
+    if (vid) { vid.style.display = 'block'; vid.play(); }
   }
 
   create() {
-    const W = this.scale.width;
-    const H = this.scale.height;
-
     // Reset win counters on fresh menu visit
     GameState.p1Wins     = 0;
     GameState.p2Wins     = 0;
     GameState.roundNumber = 1;
 
-    // Hide video as soon as this scene shuts down (Phaser's actual event)
+    // Hide video when this scene shuts down
     this.events.on('shutdown', () => {
-      const wrap = document.getElementById('bg-video-wrap');
-      if (wrap) {
-        wrap.style.display = 'none';
-        const vid = wrap.querySelector('video');
-        if (vid) { vid.pause(); vid.currentTime = 0; }
-      }
+      const vid = document.getElementById('bg-video');
+      if (vid) { vid.style.display = 'none'; vid.pause(); vid.currentTime = 0; }
     });
 
-    // Add HTML UI (position it at the center of the game viewport)
+    // Add HTML UI
     const ui = this.add.dom(0, 0).setOrigin(0, 0).createFromHTML(MENU_HTML);
 
-    // Add listeners
     ui.addListener('click');
     ui.on('click', (event) => {
+      const vid = document.getElementById('bg-video');
       if (event.target.id === 'btn-start') {
-        // Hide video immediately then fade out
-        const wrap = document.getElementById('bg-video-wrap');
-        if (wrap) { wrap.style.display = 'none'; }
+        if (vid) { vid.style.display = 'none'; vid.pause(); vid.currentTime = 0; }
         this.cameras.main.fadeOut(100, 0, 0, 0, (cam, pct) => {
           if (pct === 1) this.scene.start('ModeScene');
         });
       } else if (event.target.id === 'btn-settings') {
-        const wrap = document.getElementById('bg-video-wrap');
-        if (wrap) { wrap.style.display = 'none'; }
+        if (vid) { vid.style.display = 'none'; vid.pause(); vid.currentTime = 0; }
         this.scene.start('SettingsScene');
       }
     });
