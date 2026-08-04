@@ -24,17 +24,22 @@ const MODE_HTML = `
             --text-muted: #8b9bb4;
         }
 
-        #ui-mode { width: 960px; height: 540px; margin: 0; padding: 0; position: absolute; top: 0; left: 0; overflow: hidden;
+        @font-face {
+            font-family: 'Edo';
+            src: url('aset/edo_sz/edosz.ttf') format('truetype');
+        }
+
+        #ui-mode { width: 960px; height: 540px; margin: 0; padding: 30px 20px; position: absolute; top: 0; left: 0; overflow: hidden;
             background-color: var(--bg-main);
+            background-image: url('aset/bg select mode.png');
+            background-size: cover;
+            background-position: center;
             color: var(--text-main);
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
+            justify-content: flex-start;
             position: relative;
-            overflow: hidden;
         }
 
         /* ENVIRONMENT (Nyambung dengan tema main menu) */
@@ -60,55 +65,57 @@ const MODE_HTML = `
         /* HEADER */
         .header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 25px;
             position: relative;
             z-index: 10;
         }
 
         .header h1 {
-            font-size: 55px;
-            font-weight: 900;
+            font-family: 'Edo', sans-serif;
+            font-size: 65px;
+            font-weight: normal;
             text-transform: uppercase;
-            font-style: italic;
-            letter-spacing: 3px;
+            letter-spacing: 5px;
             color: #ffffff;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0,0,0,1);
+            margin-bottom: -5px;
         }
 
         .header p {
-            color: var(--text-muted);
-            font-size: 18px;
-            letter-spacing: 1px;
+            font-family: 'Edo', sans-serif;
+            color: #ffcc00;
+            font-size: 22px;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
         }
 
         /* MODE CARDS CONTAINER */
         .mode-container {
             display: flex;
-            gap: 40px;
+            gap: 30px;
             justify-content: center;
             position: relative;
             z-index: 10;
-            max-width: 900px;
+            max-width: 850px;
             width: 100%;
         }
 
         /* INDIVIDUAL MODE CARD */
         .mode-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 3px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            width: 350px;
-            padding: 40px 30px;
+            width: 320px;
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
             position: relative;
             overflow: hidden;
         }
@@ -125,7 +132,7 @@ const MODE_HTML = `
 
         /* Hover Effects per Tema */
         .card-p1:hover {
-            transform: translateY(-15px) scale(1.02);
+            transform: translateY(-8px) scale(1.02);
             background: var(--bg-card-hover);
             border-color: var(--c-p1);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 229, 255, 0.2);
@@ -134,7 +141,7 @@ const MODE_HTML = `
         .card-p1:hover .card-title { color: var(--c-p1); }
 
         .card-p2:hover {
-            transform: translateY(-15px) scale(1.02);
+            transform: translateY(-8px) scale(1.02);
             background: var(--bg-card-hover);
             border-color: var(--c-p2);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 51, 0, 0.2);
@@ -146,71 +153,83 @@ const MODE_HTML = `
 
         /* ICON CONTAINER */
         .icon-box {
-            height: 100px;
+            height: 75px;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             position: relative;
         }
 
         .icon-svg {
-            height: 80px;
-            width: 80px;
+            height: 65px;
+            width: 65px;
             transition: all 0.3s ease;
         }
 
         /* TYPOGRAPHY CARD */
         .card-title {
-            font-size: 32px;
-            font-weight: 900;
-            font-style: italic;
+            font-family: 'Edo', sans-serif;
+            font-size: 34px;
+            font-weight: normal;
             color: #fff;
-            margin-bottom: 5px;
-            letter-spacing: 1px;
+            margin-bottom: 2px;
+            letter-spacing: 2px;
             transition: color 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .card-subtitle {
+            font-family: 'Edo', sans-serif;
             font-size: 16px;
-            font-weight: 700;
+            font-weight: normal;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         .card-desc {
-            font-size: 14px;
+            font-size: 13px;
             color: #a0aec0;
-            line-height: 1.6;
-            padding: 0 10px;
+            line-height: 1.5;
+            padding: 0 5px;
         }
 
-        /* BOTTOM UI (Back Button) */
+        /* BOTTOM UI (Back Button - Bottom Left) */
         .bottom-ui {
-            position: relative;
-            z-index: 10;
-            margin-top: 60px;
+            position: absolute;
+            bottom: 25px;
+            left: 30px;
+            z-index: 20;
+            margin: 0;
         }
 
         .back-btn {
-            color: var(--text-muted);
-            background: transparent;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
+            font-family: 'Edo', sans-serif;
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #8b9bb4;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: normal;
             cursor: pointer;
-            transition: color 0.2s, transform 0.2s;
+            transition: all 0.1s;
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
+            gap: 10px;
+            padding: 8px 24px;
+            letter-spacing: 2px;
+            backdrop-filter: blur(5px);
         }
         .back-btn:hover {
-            color: #fff;
-            transform: translateX(-5px);
+            color: #000;
+            background: #ffcc00;
+            border-color: #ffffff;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255,204,0,0.6);
         }
 
         @media (max-width: 768px) {
@@ -220,11 +239,6 @@ const MODE_HTML = `
     
 </style>
 <div id="ui-mode">
-  
-
-    <div class="ambient-bg"></div>
-    <div class="stars"></div>
-
     <div class="header">
         <h1>SELECT MODE</h1>
         <p>Pilih mode permainan sebelum bertarung</p>
@@ -330,24 +344,24 @@ class ModeScene extends Phaser.Scene {
       
       if (target.id === 'mode-1p') {
         GameState.mode = '1p';
-        this.cameras.main.fadeOut(250, 0, 0, 0);
+        this.cameras.main.fadeOut(100, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
           this.scene.start('PowerScene');
         });
       } else if (target.id === 'mode-2p') {
         GameState.mode = '2p';
-        this.cameras.main.fadeOut(250, 0, 0, 0);
+        this.cameras.main.fadeOut(100, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
           this.scene.start('PowerScene');
         });
       } else if (target.id === 'btn-back' || target.closest('#btn-back')) {
-        this.cameras.main.fadeOut(250, 0, 0, 0);
+        this.cameras.main.fadeOut(100, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
           this.scene.start('MenuScene');
         });
       }
     });
 
-    this.cameras.main.fadeIn(300, 0, 0, 0);
+    this.cameras.main.fadeIn(120, 0, 0, 0);
   }
 }

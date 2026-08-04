@@ -32,6 +32,7 @@ const POWER_HTML = `
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: space-evenly;
             background-image: 
                 radial-gradient(circle at top, rgba(51, 153, 255, 0.1) 0%, transparent 40%),
                 radial-gradient(circle at bottom, rgba(255, 85, 0, 0.05) 0%, transparent 40%);
@@ -40,7 +41,6 @@ const POWER_HTML = `
         /* HEADER SECTION */
         .header {
             text-align: center;
-            margin-bottom: 15px;
         }
 
         .header h1 {
@@ -169,7 +169,40 @@ const POWER_HTML = `
         }
 
         .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             width: 100%;
+        }
+
+        .stat-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 28px;
+        }
+
+        .stat-icon {
+            width: 12px;
+            height: 12px;
+            fill: none;
+            stroke: var(--text-muted);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            margin-bottom: 2px;
+        }
+
+        .stat-label span {
+            font-size: 7px;
+            font-weight: 800;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .stat-bar {
+            flex-grow: 1;
             height: 4px;
             background: #2a2a40;
             border-radius: 2px;
@@ -187,7 +220,6 @@ const POWER_HTML = `
         .bottom-ui {
             width: 100%;
             max-width: 930px;
-            margin-top: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -259,10 +291,22 @@ const POWER_HTML = `
             <h3 class="title" style="color: var(--c);">FIRE FIST</h3>
             <p class="desc">Serangan lebih mematikan, beri damage ekstra.</p>
             <div class="stats-container">
-                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 40%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 60%;"></div></div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 40%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 60%;"></div></div>
+                </div>
             </div>
         </div>
 
@@ -294,10 +338,22 @@ const POWER_HTML = `
             <h3 class="title" style="color: var(--c);">ICE GUARD</h3>
             <p class="desc">Block lebih kuat, kurangi damage masuk secara drastis.</p>
             <div class="stats-container">
-                <div class="stat-row"><div class="stat-fill" style="width: 100%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 100%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 100%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 40%;"></div></div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 100%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 40%;"></div></div>
+                </div>
             </div>
         </div>
 
@@ -330,10 +386,22 @@ const POWER_HTML = `
             <h3 class="title" style="color: var(--c);">SPEED BLADE</h3>
             <p class="desc">Serang lebih sering dengan cooldown minimal.</p>
             <div class="stats-container">
-                <div class="stat-row"><div class="stat-fill" style="width: 80%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 50%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 70%;"></div></div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 50%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 70%;"></div></div>
+                </div>
             </div>
         </div>
 
@@ -368,10 +436,22 @@ const POWER_HTML = `
             <h3 class="title" style="color: var(--c);">HEAVY HAMMER</h3>
             <p class="desc">Heavy attack sangat kuat tapi sedikit lebih lambat.</p>
             <div class="stats-container">
-                <div class="stat-row"><div class="stat-fill" style="width: 80%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 30%;"></div></div>
-                <div class="stat-row"><div class="stat-fill" style="width: 90%;"></div></div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 30%;"></div></div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
+                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
+                </div>
             </div>
         </div>
 
@@ -431,7 +511,7 @@ class PowerScene extends Phaser.Scene {
       const target = event.target.closest('.card') || event.target;
       
       if (target.id === 'btn-back' || target.closest('#btn-back')) {
-        this.cameras.main.fadeOut(250, 0, 0, 0);
+        this.cameras.main.fadeOut(100, 0, 0, 0);
         this.cameras.main.once('camerafadeoutcomplete', () => {
           this.scene.start('ModeScene');
         });
@@ -449,7 +529,7 @@ class PowerScene extends Phaser.Scene {
       }
     });
 
-    this.cameras.main.fadeIn(300, 0, 0, 0);
+    this.cameras.main.fadeIn(120, 0, 0, 0);
   }
 
   _onCardClick(chosenKey, targetEl) {
@@ -489,8 +569,8 @@ class PowerScene extends Phaser.Scene {
   _startBattle() {
     GameState.p1Power = POWERS[this._p1Selected];
     GameState.p2Power = POWERS[this._p2Selected];
-    this.time.delayedCall(400, () => {
-      this.cameras.main.fadeOut(350, 0, 0, 0);
+    this.time.delayedCall(100, () => {
+      this.cameras.main.fadeOut(150, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
         this.scene.start('BattleScene');
       });

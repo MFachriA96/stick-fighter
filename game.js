@@ -22,10 +22,16 @@ const config = {
   width:  GAME_WIDTH,
   height: GAME_HEIGHT,
   parent: 'game-container',
+  transparent: true,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+  },
   dom: {
     createContainer: true
   },
-  backgroundColor: '#0a0a0f',
   physics: {
     default: 'arcade',
     arcade: { gravity: { y: 0 }, debug: false }

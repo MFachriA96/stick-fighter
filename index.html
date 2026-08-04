@@ -6,25 +6,47 @@
   <title>Stickman Combo Fighter</title>
   <meta name="description" content="Stickman Combo Fighter — game fighting 2D seru dengan sistem combo, 4 power unik, mode 1P vs CPU dan 2P lokal." />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    #bg-video-wrap {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      background: #000;
+    }
+    #bg-video-wrap video {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    #game-container { position: relative; z-index: 1; }
+  </style>
 
   <!-- Phaser 3 via CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 </head>
 <body>
+  <!-- Video background loads immediately before any JS -->
+  <div id="bg-video-wrap">
+    <video autoplay loop muted playsinline preload="auto">
+      <source src="aset/Main Menu.mp4" type="video/mp4">
+    </video>
+  </div>
+
   <div id="game-container"></div>
 
-  <!-- Game Modules (order matters — base classes first) -->
-  <script src="keybindings.js"></script>
-  <script src="particles.js"></script>
-  <script src="combo.js"></script>
-  <script src="player.js"></script>
-  <script src="ai.js"></script>
-  <script src="scenes/SettingsScene.js"></script>
-  <script src="scenes/MenuScene.js"></script>
-  <script src="scenes/ModeScene.js"></script>
-  <script src="scenes/PowerScene.js"></script>
-  <script src="scenes/BattleScene.js"></script>
-  <script src="scenes/ResultScene.js"></script>
-  <script src="game.js"></script>
+  <!-- Game Modules (deferred so page renders video first) -->
+  <script defer src="keybindings.js"></script>
+  <script defer src="particles.js"></script>
+  <script defer src="combo.js"></script>
+  <script defer src="player.js"></script>
+  <script defer src="ai.js"></script>
+  <script defer src="scenes/SettingsScene.js"></script>
+  <script defer src="scenes/MenuScene.js"></script>
+  <script defer src="scenes/ModeScene.js"></script>
+  <script defer src="scenes/PowerScene.js"></script>
+  <script defer src="scenes/BattleScene.js"></script>
+  <script defer src="scenes/ResultScene.js"></script>
+  <script defer src="game.js"></script>
 </body>
 </html>

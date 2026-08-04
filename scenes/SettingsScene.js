@@ -37,18 +37,20 @@ class SettingsScene extends Phaser.Scene {
     for (let y = 0; y <= H; y += 40) grid.lineBetween(0, y, W, y);
 
     // ── Title ───────────────────────────────────────────────────────────
-    this.add.text(W / 2, 38, '⚙  SETTINGS', {
-      fontFamily: 'Bangers, sans-serif',
-      fontSize:   '46px',
+    this.add.text(W / 2, 34, 'SETTINGS', {
+      fontFamily: 'Edo, sans-serif',
+      fontSize:   '50px',
       color:      '#ffffff',
-      stroke:     '#6366f1',
-      strokeThickness: 4,
+      stroke:     '#ffcc00',
+      strokeThickness: 3,
+      shadow: { color: '#000', fill: true, offsetX: 2, offsetY: 2, blur: 5 }
     }).setOrigin(0.5);
 
-    this.add.text(W / 2, 84, 'Klik tombol untuk mengganti key binding — lalu tekan tombol baru', {
+    this.add.text(W / 2, 70, 'Klik tombol untuk mengganti key binding — lalu tekan tombol baru', {
       fontFamily: 'Inter, sans-serif',
       fontSize:   '14px',
-      color:      '#64748b',
+      color:      '#ffcc00',
+      shadow: { color: '#000', fill: true, offsetX: 1, offsetY: 1, blur: 2 }
     }).setOrigin(0.5);
 
     // ── Player columns ──────────────────────────────────────────────────
@@ -58,15 +60,16 @@ class SettingsScene extends Phaser.Scene {
     ];
 
     const actions   = Object.keys(ACTION_LABELS);
-    const rowStartY = 148;
-    const rowH      = 55;
+    const rowStartY = 120;
+    const rowH      = 46;
 
     for (const col of colDefs) {
       // Column header
       this.add.text(col.x, rowStartY - 10, col.label, {
-        fontFamily: 'Bangers, sans-serif',
-        fontSize:   '26px',
+        fontFamily: 'Edo, sans-serif',
+        fontSize:   '32px',
         color:      col.textCol,
+        shadow: { color: '#000', fill: true, offsetX: 2, offsetY: 2, blur: 4 }
       }).setOrigin(0.5);
 
       // Divider
@@ -121,11 +124,11 @@ class SettingsScene extends Phaser.Scene {
 
     // ── Reset to Defaults button ─────────────────────────────────────────
     const resetX = W / 2;
-    const resetY = H - 95;
+    const resetY = H - 90;
     const resetGfx = this.add.graphics();
-    this._drawBtn(resetGfx, resetX, resetY, 200, 40, 0xef4444, false);
+    this._drawBtn(resetGfx, resetX, resetY, 200, 36, 0xef4444, false);
     const resetTxt = this.add.text(resetX, resetY, 'Reset Defaults', {
-      fontFamily: 'Bangers, sans-serif',
+      fontFamily: 'Edo, sans-serif',
       fontSize:   '22px',
       color:      '#ffffff',
     }).setOrigin(0.5);
@@ -140,18 +143,22 @@ class SettingsScene extends Phaser.Scene {
 
     // ── Back button ──────────────────────────────────────────────────────
     const backX = W / 2;
-    const backY = H - 42;
+    const backY = H - 40;
     const backGfx = this.add.graphics();
-    this._drawBtn(backGfx, backX, backY, 200, 40, 0x6366f1, false);
-    this.add.text(backX, backY, '← Back to Menu', {
-      fontFamily: 'Bangers, sans-serif',
+    this._drawBtn(backGfx, backX, backY, 200, 36, 0xffcc00, false);
+    this.add.text(backX, backY, 'Back to Menu', {
+      fontFamily: 'Edo, sans-serif',
       fontSize:   '22px',
-      color:      '#ffffff',
+      color:      '#000000',
     }).setOrigin(0.5);
 
-    const backZone = this.add.zone(backX, backY, 200, 40).setInteractive({ cursor: 'pointer' });
-    backZone.on('pointerover', () => this._drawBtn(backGfx, backX, backY, 200, 40, 0x6366f1, true));
-    backZone.on('pointerout',  () => this._drawBtn(backGfx, backX, backY, 200, 40, 0x6366f1, false));
+    const backZone = this.add.zone(backX, backY, 200, 36).setInteractive({ cursor: 'pointer' });
+    backZone.on('pointerover', () => {
+      this._drawBtn(backGfx, backX, backY, 200, 36, 0xffcc00, true);
+    });
+    backZone.on('pointerout',  () => {
+      this._drawBtn(backGfx, backX, backY, 200, 36, 0xffcc00, false);
+    });
     backZone.on('pointerdown', () => {
       if (this._listening) this._cancelListening();
       this.cameras.main.fadeOut(250, 6, 6, 15);
