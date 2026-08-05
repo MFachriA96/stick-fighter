@@ -7,165 +7,164 @@ const POWER_HTML = `
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             user-select: none;
         }
 
         :root {
-            /* Warna Elemen Core */
             --c-fire: #ff5500;
             --c-ice: #3399ff;
             --c-speed: #ffee00;
             --c-hammer: #aa00ff;
-            
-            /* Warna UI */
-            --bg-main: #0a0a12;
-            --bg-card: #151525;
-            --bg-card-hover: #1e1e35;
-            --text-main: #ffffff;
-            --text-muted: #8b9bb4;
         }
 
-        #ui-power { width: 960px; height: 540px; margin: 0; padding: 20px 15px; position: absolute; top: 0; left: 0; overflow: hidden;
-            background-color: var(--bg-main);
-            color: var(--text-main);
+        @font-face {
+            font-family: 'Edo';
+            src: url('aset/edo_sz/edosz.ttf') format('truetype');
+        }
+
+        #ui-power {
+            width: 960px; height: 540px;
+            margin: 0; padding: 0;
+            position: absolute; top: 0; left: 0;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-evenly;
-            background-image: 
-                radial-gradient(circle at top, rgba(51, 153, 255, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at bottom, rgba(255, 85, 0, 0.05) 0%, transparent 40%);
+            justify-content: center;
+            background-image: url('aset/bg select mode.png');
+            background-size: cover;
+            background-position: center;
         }
 
-        /* HEADER SECTION */
+        /* Dark overlay for readability */
+        .power-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1;
+        }
+
+        /* HEADER */
         .header {
+            position: relative;
+            z-index: 10;
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .header h1 {
-            font-size: 32px;
-            font-weight: 900;
+            font-family: 'Edo', sans-serif;
+            font-size: 38px;
+            font-weight: normal;
             text-transform: uppercase;
-            font-style: italic;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             color: #cce0ff;
-            text-shadow: 0 0 10px rgba(51, 153, 255, 0.5);
+            text-shadow: 0 0 15px rgba(51, 153, 255, 0.6), 0 3px 6px rgba(0,0,0,0.9);
+            -webkit-text-stroke: 1px rgba(0,0,0,0.4);
             margin-bottom: 4px;
         }
 
         .header p {
-            color: var(--text-muted);
-            font-size: 14px;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: #8b9bb4;
+            font-size: 13px;
             letter-spacing: 1px;
         }
 
-        /* CARD GRID CONTAINER */
+        /* CARD GRID */
         .card-container {
+            position: relative;
+            z-index: 10;
             display: flex;
-            gap: 15px;
+            gap: 18px;
             justify-content: center;
             flex-wrap: nowrap;
-            max-width: 930px;
-            width: 100%;
         }
 
-        /* INDIVIDUAL POWER CARD */
+        /* INDIVIDUAL CARD */
         .card {
-            background: var(--bg-card);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            width: 200px;
+            height: 300px;
             border-radius: 14px;
-            width: 215px;
-            padding: 15px 12px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+            border: 3px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Character artwork fills the card */
+        .card-art {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            transition: filter 0.3s ease;
+        }
+
+        /* Power name label at bottom */
+        .card-label {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            z-index: 5;
+            padding: 10px 0;
+            text-align: center;
+            font-family: 'Edo', sans-serif;
+            font-size: 28px;
+            font-weight: normal;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--c);
+            text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 20px var(--c);
+            -webkit-text-stroke: 1.5px #000;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+            transform: translateY(0);
+            transition: opacity 0.3s ease;
+        }
+
+        /* Aura glow overlay — hidden by default, visible on hover */
+        .card-aura {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        /* Animated aura particles */
+        .aura-particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* Stats overlay — hidden by default, visible on hover */
+        .card-stats-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 4;
             display: flex;
             flex-direction: column;
             align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Glow effect at the top of the card based on element color */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 4px;
-            background: var(--c);
-            box-shadow: 0 0 15px var(--c);
-            transition: height 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            background: var(--bg-card-hover);
-            border-color: var(--c);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(var(--c-rgb), 0.2);
-        }
-
-        .card:hover::before {
-            height: 100%;
-            opacity: 0.05;
-        }
-
-        /* AVATAR CONTAINER */
-        .avatar-box {
-            width: 85px;
-            height: 85px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid var(--c);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8) inset, 0 0 15px var(--c);
-            margin-bottom: 12px;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
+            gap: 10px;
+            padding: 20px 16px;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            pointer-events: none;
         }
 
-        .avatar-svg {
-            width: 100%;
-            height: 100%;
-            filter: drop-shadow(0 0 5px var(--c));
-            transform: translateY(6px); /* Adjust character position in circle */
-        }
-
-        /* SVG Character Styling */
-        .neon-path { stroke: var(--c); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .core-path { stroke: #000; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-        .solid-core { fill: #000; }
-        .glow-eye { fill: #fff; filter: drop-shadow(0 0 3px #fff); }
-        .energy-hair { fill: var(--c); opacity: 0.8; }
-
-        /* TEXT CONTENT */
-        .title {
-            font-size: 18px;
-            font-weight: 900;
-            font-style: italic;
-            text-transform: uppercase;
-            color: #fff;
-            margin-bottom: 6px;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .desc {
-            font-size: 11px;
-            color: var(--text-muted);
-            line-height: 1.3;
-            margin-bottom: 12px;
-            height: 32px; /* Fixed height for alignment */
-        }
-
-        /* STAT BARS */
         .stats-container {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
         }
 
         .stat-row {
@@ -176,303 +175,290 @@ const POWER_HTML = `
         }
 
         .stat-label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 28px;
-        }
-
-        .stat-icon {
-            width: 12px;
-            height: 12px;
-            fill: none;
-            stroke: var(--text-muted);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            margin-bottom: 2px;
-        }
-
-        .stat-label span {
-            font-size: 7px;
-            font-weight: 800;
-            color: var(--text-muted);
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
+            font-family: 'Edo', sans-serif;
+            font-size: 14px;
+            color: #fff;
+            width: 36px;
+            text-shadow: 0 1px 3px #000;
+            letter-spacing: 1px;
         }
 
         .stat-bar {
             flex-grow: 1;
-            height: 4px;
-            background: #2a2a40;
-            border-radius: 2px;
+            height: 6px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 3px;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .stat-fill {
             height: 100%;
             background: var(--c);
-            border-radius: 2px;
-            box-shadow: 0 0 8px var(--c);
+            border-radius: 3px;
+            box-shadow: 0 0 10px var(--c);
+            transition: width 0.5s ease;
         }
 
-        /* BOTTOM UI (P1, P2, Back) */
+        .stat-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            width: 28px;
+            text-align: right;
+            text-shadow: 0 1px 2px #000;
+        }
+
+        .power-desc {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            line-height: 1.4;
+            text-shadow: 0 1px 4px #000;
+            padding: 6px 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* === HOVER EFFECTS === */
+        .card:hover {
+            transform: translateY(-10px) scale(1.03);
+        }
+
+        .card:hover .card-art {
+            filter: brightness(0.35);
+        }
+
+        .card:hover .card-aura {
+            opacity: 1;
+        }
+
+        .card:hover .card-stats-overlay {
+            opacity: 1;
+        }
+
+        .card:hover .card-label {
+            opacity: 0;
+        }
+
+        /* Per-element card border glow on hover */
+        .card[data-power="fire"]:hover { border-color: var(--c-fire); box-shadow: 0 0 30px rgba(255, 85, 0, 0.5), 0 15px 40px rgba(0,0,0,0.7); }
+        .card[data-power="ice"]:hover  { border-color: var(--c-ice); box-shadow: 0 0 30px rgba(51, 153, 255, 0.5), 0 15px 40px rgba(0,0,0,0.7); }
+        .card[data-power="speed"]:hover { border-color: var(--c-speed); box-shadow: 0 0 30px rgba(255, 238, 0, 0.5), 0 15px 40px rgba(0,0,0,0.7); }
+        .card[data-power="hammer"]:hover { border-color: var(--c-hammer); box-shadow: 0 0 30px rgba(170, 0, 255, 0.5), 0 15px 40px rgba(0,0,0,0.7); }
+
+        /* Fire aura */
+        .card[data-power="fire"] .card-aura {
+            background: radial-gradient(ellipse at center bottom, rgba(255, 85, 0, 0.25) 0%, transparent 70%);
+            box-shadow: inset 0 -60px 60px -20px rgba(255, 60, 0, 0.3);
+        }
+        /* Ice aura */
+        .card[data-power="ice"] .card-aura {
+            background: radial-gradient(ellipse at center, rgba(51, 153, 255, 0.2) 0%, transparent 70%);
+            box-shadow: inset 0 0 40px rgba(100, 200, 255, 0.2);
+        }
+        /* Speed aura */
+        .card[data-power="speed"] .card-aura {
+            background: radial-gradient(ellipse at center, rgba(255, 238, 0, 0.2) 0%, transparent 70%);
+            box-shadow: inset 0 0 40px rgba(255, 238, 0, 0.15);
+        }
+        /* Hammer aura */
+        .card[data-power="hammer"] .card-aura {
+            background: radial-gradient(ellipse at center bottom, rgba(170, 0, 255, 0.25) 0%, transparent 70%);
+            box-shadow: inset 0 -60px 60px -20px rgba(170, 0, 255, 0.25);
+        }
+
+        /* Animated aura particles per element */
+        @keyframes fireFloat {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-120px) scale(0.3); opacity: 0; }
+        }
+        @keyframes iceSparkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
+        @keyframes speedZap {
+            0% { opacity: 0; transform: scaleY(0); }
+            20% { opacity: 1; transform: scaleY(1); }
+            100% { opacity: 0; transform: scaleY(0); }
+        }
+        @keyframes hammerPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { opacity: 0.8; transform: scale(1.2); }
+            100% { transform: scale(0.5); opacity: 0; }
+        }
+
+        .card[data-power="fire"] .aura-particle { background: #ff5500; animation: fireFloat 1.5s ease-out infinite; }
+        .card[data-power="fire"] .aura-particle:nth-child(1) { left: 20%; bottom: 0; width: 8px; height: 8px; animation-delay: 0s; }
+        .card[data-power="fire"] .aura-particle:nth-child(2) { left: 45%; bottom: 0; width: 6px; height: 6px; animation-delay: 0.4s; }
+        .card[data-power="fire"] .aura-particle:nth-child(3) { left: 70%; bottom: 0; width: 10px; height: 10px; animation-delay: 0.8s; }
+        .card[data-power="fire"] .aura-particle:nth-child(4) { left: 35%; bottom: 0; width: 5px; height: 5px; animation-delay: 1.1s; }
+        .card[data-power="fire"] .aura-particle:nth-child(5) { left: 80%; bottom: 0; width: 7px; height: 7px; animation-delay: 0.6s; }
+
+        .card[data-power="ice"] .aura-particle { background: #aaddff; animation: iceSparkle 2s ease-in-out infinite; border-radius: 2px; }
+        .card[data-power="ice"] .aura-particle:nth-child(1) { left: 15%; top: 20%; width: 6px; height: 6px; animation-delay: 0s; }
+        .card[data-power="ice"] .aura-particle:nth-child(2) { left: 70%; top: 40%; width: 4px; height: 4px; animation-delay: 0.6s; }
+        .card[data-power="ice"] .aura-particle:nth-child(3) { left: 40%; top: 60%; width: 8px; height: 8px; animation-delay: 1.2s; }
+        .card[data-power="ice"] .aura-particle:nth-child(4) { left: 80%; top: 15%; width: 5px; height: 5px; animation-delay: 0.3s; }
+        .card[data-power="ice"] .aura-particle:nth-child(5) { left: 25%; top: 75%; width: 3px; height: 3px; animation-delay: 0.9s; }
+
+        .card[data-power="speed"] .aura-particle { background: #ffee00; animation: speedZap 0.8s ease-in-out infinite; width: 2px !important; border-radius: 0; }
+        .card[data-power="speed"] .aura-particle:nth-child(1) { left: 20%; top: 10%; height: 30px; animation-delay: 0s; }
+        .card[data-power="speed"] .aura-particle:nth-child(2) { left: 55%; top: 30%; height: 25px; animation-delay: 0.2s; }
+        .card[data-power="speed"] .aura-particle:nth-child(3) { left: 75%; top: 50%; height: 35px; animation-delay: 0.5s; }
+        .card[data-power="speed"] .aura-particle:nth-child(4) { left: 40%; top: 70%; height: 20px; animation-delay: 0.3s; }
+        .card[data-power="speed"] .aura-particle:nth-child(5) { left: 85%; top: 20%; height: 28px; animation-delay: 0.7s; }
+
+        .card[data-power="hammer"] .aura-particle { background: #aa00ff; animation: hammerPulse 2s ease-in-out infinite; }
+        .card[data-power="hammer"] .aura-particle:nth-child(1) { left: 25%; top: 70%; width: 12px; height: 12px; animation-delay: 0s; }
+        .card[data-power="hammer"] .aura-particle:nth-child(2) { left: 60%; top: 80%; width: 8px; height: 8px; animation-delay: 0.5s; }
+        .card[data-power="hammer"] .aura-particle:nth-child(3) { left: 45%; top: 60%; width: 10px; height: 10px; animation-delay: 1s; }
+        .card[data-power="hammer"] .aura-particle:nth-child(4) { left: 15%; top: 85%; width: 6px; height: 6px; animation-delay: 0.7s; }
+        .card[data-power="hammer"] .aura-particle:nth-child(5) { left: 75%; top: 65%; width: 9px; height: 9px; animation-delay: 1.3s; }
+
+        /* BOTTOM UI */
         .bottom-ui {
+            position: relative;
+            z-index: 10;
             width: 100%;
-            max-width: 930px;
+            max-width: 870px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 10px;
+            margin-top: 18px;
         }
 
         .back-btn {
-            color: var(--text-muted);
-            background: transparent;
-            border: none;
+            font-family: 'Edo', sans-serif;
+            color: #8b9bb4;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
             font-size: 16px;
+            padding: 6px 16px;
             cursor: pointer;
-            transition: color 0.2s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 5px;
+            letter-spacing: 1px;
         }
-        .back-btn:hover { color: #fff; }
+        .back-btn:hover { color: #fff; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
 
         .player-indicators {
             display: flex;
-            gap: 100px;
+            gap: 60px;
+            font-family: 'Edo', sans-serif;
             font-size: 18px;
-            font-weight: 800;
-            font-style: italic;
+            letter-spacing: 2px;
             color: #4a5568;
         }
         .p-indicator span { color: #fff; margin-left: 10px; }
 
-    
 </style>
 <div id="ui-power">
-  
+
+    <div class="power-overlay"></div>
 
     <div class="header">
-        <h1>PLAYER 1 &mdash; PILIH POWER</h1>
-        <p>Klik kartu power yang ingin kamu gunakan</p>
+        <h1>PLAYER 1 &mdash; SELECT POWER</h1>
+        <p>Choose your fighter's power</p>
     </div>
 
     <div class="card-container">
-        
-        <!-- 1. FIRE FIST CARD -->
-        <div class="card" id="power-fire" style="--c: var(--c-fire);">
-            <div class="avatar-box">
-                <svg class="avatar-svg" viewBox="0 0 100 100">
-                    <!-- Spiky Fire Hair -->
-                    <path class="energy-hair" d="M 50 15 Q 40 5 35 15 Q 30 5 25 20 Q 20 15 15 30 Q 20 25 25 35 Q 20 40 30 40 Q 30 30 50 25 Q 70 30 70 40 Q 80 40 75 35 Q 80 25 85 30 Q 80 15 75 20 Q 70 5 65 15 Q 60 5 50 15 Z"/>
-                    <!-- Outline & Core -->
-                    <g class="neon-path">
-                        <circle cx="50" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="3"/>
-                        <path d="M 50 54 L 50 95" /> <!-- Body -->
-                        <path d="M 50 60 L 25 75 L 35 55" /> <!-- Left Arm Guarding -->
-                        <path d="M 50 60 L 75 80 L 85 60" /> <!-- Right Arm Punching -->
-                        <circle cx="35" cy="55" r="7" fill="var(--c)"/> <!-- Left Fist -->
-                        <circle cx="85" cy="60" r="9" fill="var(--c)"/> <!-- Right Fist Flaming -->
-                    </g>
-                    <g class="core-path">
-                        <path d="M 50 54 L 50 95" />
-                        <path d="M 50 60 L 25 75 L 35 55" />
-                        <path d="M 50 60 L 75 80 L 85 60" />
-                        <circle cx="35" cy="55" r="5" class="solid-core" stroke="none"/>
-                        <circle cx="85" cy="60" r="6" class="solid-core" stroke="none"/>
-                    </g>
-                    <!-- Fierce Eyes -->
-                    <path class="glow-eye" d="M 42 35 L 47 38 L 48 35 Z"/>
-                    <path class="glow-eye" d="M 58 35 L 53 38 L 52 35 Z"/>
-                </svg>
+
+        <!-- FIRE FIST -->
+        <div class="card" id="power-fire" data-power="fire" style="--c: var(--c-fire);">
+            <img class="card-art" src="aset/fire_fist.png" alt="Fire Fist" />
+            <div class="card-aura">
+                <div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div>
             </div>
-            <h3 class="title" style="color: var(--c);">FIRE FIST</h3>
-            <p class="desc">Serangan lebih mematikan, beri damage ekstra.</p>
-            <div class="stats-container">
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 40%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 60%;"></div></div>
+            <div class="card-stats-overlay">
+                <div class="power-desc">Attacks deal 30% extra damage. Strike with overwhelming firepower.</div>
+                <div class="stats-container">
+                    <div class="stat-row"><span class="stat-label">ATK</span><div class="stat-bar"><div class="stat-fill" style="width:90%;"></div></div><span class="stat-value">90</span></div>
+                    <div class="stat-row"><span class="stat-label">DEF</span><div class="stat-bar"><div class="stat-fill" style="width:40%;"></div></div><span class="stat-value">40</span></div>
+                    <div class="stat-row"><span class="stat-label">SPD</span><div class="stat-bar"><div class="stat-fill" style="width:60%;"></div></div><span class="stat-value">60</span></div>
+                    <div class="stat-row"><span class="stat-label">HVY</span><div class="stat-bar"><div class="stat-fill" style="width:60%;"></div></div><span class="stat-value">60</span></div>
                 </div>
             </div>
+            <div class="card-label">Fire Fist</div>
         </div>
 
-        <!-- 2. ICE GUARD CARD -->
-        <div class="card" id="power-ice" style="--c: var(--c-ice);">
-            <div class="avatar-box">
-                <svg class="avatar-svg" viewBox="0 0 100 100">
-                    <!-- Blocky Ice Hair -->
-                    <path class="energy-hair" d="M 30 30 L 35 15 L 45 20 L 50 10 L 55 20 L 65 15 L 70 30 Z"/>
-                    <!-- Outline & Core -->
-                    <g class="neon-path">
-                        <circle cx="50" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="3"/>
-                        <path d="M 50 54 L 50 95" /> <!-- Body -->
-                        <path d="M 50 65 L 20 70 L 35 85" /> <!-- Left Arm holding shield -->
-                        <path d="M 50 60 L 80 75" /> <!-- Right Arm down -->
-                        <!-- Ice Shield -->
-                        <path d="M 15 65 L 45 65 L 50 95 L 30 105 L 10 95 Z" fill="rgba(51, 153, 255, 0.4)" stroke="var(--c)" stroke-width="2"/>
-                    </g>
-                    <g class="core-path">
-                        <path d="M 50 54 L 50 95" />
-                        <path d="M 50 65 L 25 70 L 35 85" />
-                        <path d="M 50 60 L 80 75" />
-                    </g>
-                    <!-- Stern Eyes -->
-                    <path class="glow-eye" d="M 40 37 L 46 38 L 46 36 Z"/>
-                    <path class="glow-eye" d="M 60 37 L 54 38 L 54 36 Z"/>
-                </svg>
+        <!-- ICE GUARD -->
+        <div class="card" id="power-ice" data-power="ice" style="--c: var(--c-ice);">
+            <img class="card-art" src="aset/ice_guard.png" alt="Ice Guard" />
+            <div class="card-aura">
+                <div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div>
             </div>
-            <h3 class="title" style="color: var(--c);">ICE GUARD</h3>
-            <p class="desc">Block lebih kuat, kurangi damage masuk secara drastis.</p>
-            <div class="stats-container">
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 100%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 100%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 100%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 40%;"></div></div>
+            <div class="card-stats-overlay">
+                <div class="power-desc">Blocks reduce 85% incoming damage. An impenetrable fortress of ice.</div>
+                <div class="stats-container">
+                    <div class="stat-row"><span class="stat-label">ATK</span><div class="stat-bar"><div class="stat-fill" style="width:50%;"></div></div><span class="stat-value">50</span></div>
+                    <div class="stat-row"><span class="stat-label">DEF</span><div class="stat-bar"><div class="stat-fill" style="width:95%;"></div></div><span class="stat-value">95</span></div>
+                    <div class="stat-row"><span class="stat-label">SPD</span><div class="stat-bar"><div class="stat-fill" style="width:50%;"></div></div><span class="stat-value">50</span></div>
+                    <div class="stat-row"><span class="stat-label">HVY</span><div class="stat-bar"><div class="stat-fill" style="width:40%;"></div></div><span class="stat-value">40</span></div>
                 </div>
             </div>
+            <div class="card-label">Ice Guard</div>
         </div>
 
-        <!-- 3. SPEED BLADE CARD -->
-        <div class="card" id="power-speed" style="--c: var(--c-speed);">
-            <div class="avatar-box">
-                <svg class="avatar-svg" viewBox="0 0 100 100">
-                    <!-- Swept-back aerodynamic hair -->
-                    <path class="energy-hair" d="M 60 30 Q 80 20 90 40 Q 75 35 65 45 Q 85 45 95 60 Q 75 55 60 55 Z"/>
-                    <!-- Outline & Core -->
-                    <g class="neon-path">
-                        <circle cx="45" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="3"/>
-                        <path d="M 45 54 L 35 95" /> <!-- Body leaning forward -->
-                        <path d="M 45 60 L 15 75 L 10 50" /> <!-- Right Arm with sword -->
-                        <path d="M 45 60 L 70 70 L 80 90" /> <!-- Left Arm back -->
-                        <!-- Katana Blade -->
-                        <path d="M 5 55 Q 15 20 40 5" stroke="var(--c)" stroke-width="3" fill="none"/>
-                    </g>
-                    <g class="core-path">
-                        <path d="M 45 54 L 35 95" />
-                        <path d="M 45 60 L 15 75 L 10 50" />
-                        <path d="M 45 60 L 70 70 L 80 90" />
-                        <path d="M 5 55 Q 15 20 40 5" stroke="#000" stroke-width="1.5" fill="none"/>
-                    </g>
-                    <!-- Sharp Eyes -->
-                    <path class="glow-eye" d="M 32 36 L 40 38 L 40 35 Z"/>
-                    <path class="glow-eye" d="M 50 38 L 47 40 L 45 37 Z"/>
-                </svg>
+        <!-- SPEED BLADE -->
+        <div class="card" id="power-speed" data-power="speed" style="--c: var(--c-speed);">
+            <img class="card-art" src="aset/speed_blade.png" alt="Speed Blade" />
+            <div class="card-aura">
+                <div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div>
             </div>
-            <h3 class="title" style="color: var(--c);">SPEED BLADE</h3>
-            <p class="desc">Serang lebih sering dengan cooldown minimal.</p>
-            <div class="stats-container">
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 50%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 70%;"></div></div>
+            <div class="card-stats-overlay">
+                <div class="power-desc">Attack cooldowns reduced by 55%. Relentless barrage of lightning-fast strikes.</div>
+                <div class="stats-container">
+                    <div class="stat-row"><span class="stat-label">ATK</span><div class="stat-bar"><div class="stat-fill" style="width:60%;"></div></div><span class="stat-value">60</span></div>
+                    <div class="stat-row"><span class="stat-label">DEF</span><div class="stat-bar"><div class="stat-fill" style="width:40%;"></div></div><span class="stat-value">40</span></div>
+                    <div class="stat-row"><span class="stat-label">SPD</span><div class="stat-bar"><div class="stat-fill" style="width:95%;"></div></div><span class="stat-value">95</span></div>
+                    <div class="stat-row"><span class="stat-label">HVY</span><div class="stat-bar"><div class="stat-fill" style="width:50%;"></div></div><span class="stat-value">50</span></div>
                 </div>
             </div>
+            <div class="card-label">Speed Blade</div>
         </div>
 
-        <!-- 4. HEAVY HAMMER CARD -->
-        <div class="card" id="power-hammer" style="--c: var(--c-hammer);">
-            <div class="avatar-box">
-                <svg class="avatar-svg" viewBox="0 0 100 100">
-                    <!-- Bulky energy aura/hair -->
-                    <path class="energy-hair" d="M 35 25 Q 50 10 65 25 Q 75 35 70 50 Q 50 35 30 50 Q 25 35 35 25 Z"/>
-                    <!-- Outline & Core -->
-                    <g class="neon-path" stroke-width="5">
-                        <circle cx="50" cy="40" r="14" class="solid-core" stroke="var(--c)" stroke-width="4"/>
-                        <path d="M 50 54 L 50 95" /> <!-- Bulky Body -->
-                        <path d="M 50 65 L 20 55 L 25 80" /> <!-- Arms holding hammer -->
-                        <path d="M 50 65 L 80 55 L 75 80" /> 
-                        <!-- Giant Hammer -->
-                        <path d="M 50 105 L 50 50" stroke-width="4"/> <!-- Handle -->
-                        <path d="M 25 35 L 75 35 L 85 55 L 15 55 Z" fill="rgba(170, 0, 255, 0.4)" stroke="var(--c)" stroke-width="2"/>
-                    </g>
-                    <g class="core-path" stroke-width="3">
-                        <path d="M 50 54 L 50 95" />
-                        <path d="M 50 65 L 20 55 L 25 80" />
-                        <path d="M 50 65 L 80 55 L 75 80" />
-                        <path d="M 50 105 L 50 50" stroke-width="2"/>
-                        <path d="M 30 40 L 70 40 L 75 50 L 25 50 Z" fill="#000" stroke="none"/>
-                    </g>
-                    <!-- Menacing Eyes -->
-                    <path class="glow-eye" d="M 38 38 L 45 42 L 47 38 Z"/>
-                    <path class="glow-eye" d="M 62 38 L 55 42 L 53 38 Z"/>
-                </svg>
+        <!-- HEAVY HAMMER -->
+        <div class="card" id="power-hammer" data-power="hammer" style="--c: var(--c-hammer);">
+            <img class="card-art" src="aset/heavy_hammer.png" alt="Heavy Hammer" />
+            <div class="card-aura">
+                <div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div><div class="aura-particle"></div>
             </div>
-            <h3 class="title" style="color: var(--c);">HEAVY HAMMER</h3>
-            <p class="desc">Heavy attack sangat kuat tapi sedikit lebih lambat.</p>
-            <div class="stats-container">
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/></svg><span>ATK</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 80%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>DEF</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>SPD</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 30%;"></div></div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label"><svg class="stat-icon" viewBox="0 0 24 24"><path d="M2 12h20M7 12V8h10M12 12v10"/></svg><span>HVY</span></div>
-                    <div class="stat-bar"><div class="stat-fill" style="width: 90%;"></div></div>
+            <div class="card-stats-overlay">
+                <div class="power-desc">Heavy attacks deal 2.5x damage. Slow but devastating hammer strikes.</div>
+                <div class="stats-container">
+                    <div class="stat-row"><span class="stat-label">ATK</span><div class="stat-bar"><div class="stat-fill" style="width:70%;"></div></div><span class="stat-value">70</span></div>
+                    <div class="stat-row"><span class="stat-label">DEF</span><div class="stat-bar"><div class="stat-fill" style="width:70%;"></div></div><span class="stat-value">70</span></div>
+                    <div class="stat-row"><span class="stat-label">SPD</span><div class="stat-bar"><div class="stat-fill" style="width:30%;"></div></div><span class="stat-value">30</span></div>
+                    <div class="stat-row"><span class="stat-label">HVY</span><div class="stat-bar"><div class="stat-fill" style="width:95%;"></div></div><span class="stat-value">95</span></div>
                 </div>
             </div>
+            <div class="card-label">Heavy Hammer</div>
         </div>
 
     </div>
 
-    <!-- BOTTOM UI NAVIGATION -->
+    <!-- BOTTOM UI -->
     <div class="bottom-ui">
         <button class="back-btn" id="btn-back">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             Back
         </button>
-        
+
         <div class="player-indicators">
             <div class="p-indicator">P1: <span>-</span></div>
             <div class="p-indicator">P2: <span>-</span></div>
         </div>
-        
-        <!-- Empty div for flexbox alignment -->
+
         <div style="width: 60px;"></div>
     </div>
-
 
 </div>
 
@@ -552,10 +538,10 @@ class PowerScene extends Phaser.Scene {
         this._startBattle();
       } else {
         this._phase = 'p2';
-        this.titleEl.innerText = 'PLAYER 2 — PILIH POWER';
+        this.titleEl.innerText = 'PLAYER 2 — SELECT POWER';
         this.titleEl.style.color = '#ff8888';
-        this.titleEl.style.textShadow = '0 0 10px rgba(255, 136, 136, 0.5)';
-        this.subEl.innerText = 'Player 2: pilih power untuk bertarung!';
+        this.titleEl.style.textShadow = '0 0 15px rgba(255, 136, 136, 0.6), 0 3px 6px rgba(0,0,0,0.9)';
+        this.subEl.innerText = 'Player 2: choose your power!';
       }
     } else if (this._phase === 'p2') {
       this._p2Selected = chosenKey;
