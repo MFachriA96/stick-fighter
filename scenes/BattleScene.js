@@ -7,9 +7,21 @@ const ARENA_LEFT  = 60;
 const ARENA_RIGHT = 900;
 const ROUND_DURATION_S = 60; // seconds per round (time limit)
 
+// Map power keys to portrait image filenames
+const PORTRAIT_MAP = {
+  fire:  'aset/fire_fist.png',
+  ice:   'aset/ice_guard.png',
+  speed: 'aset/speed_blade.png',
+  heavy: 'aset/heavy_hammer.png',
+};
+
 class BattleScene extends Phaser.Scene {
   constructor() {
     super({ key: 'BattleScene' });
+  }
+
+  preload() {
+    // Assets are loaded via DOM overlays because Phaser's local file loading fails
   }
 
   create() {
@@ -19,11 +31,34 @@ class BattleScene extends Phaser.Scene {
     this._W = W;
     this._H = H;
 
+    // ── Show battle background image (HTML element behind transparent canvas) ──
+    const battleBg = document.getElementById('battle-bg');
+    if (battleBg) battleBg.style.display = 'block';
+
+    // Show DOM HUD Portraits
+    const p1PortraitDom = document.getElementById('hud-p1-portrait');
+    const p2PortraitDom = document.getElementById('hud-p2-portrait');
+    if (p1PortraitDom) {
+      p1PortraitDom.src = PORTRAIT_MAP[GameState.p1Power.key];
+      p1PortraitDom.style.display = 'block';
+    }
+    if (p2PortraitDom) {
+      p2PortraitDom.src = PORTRAIT_MAP[GameState.p2Power.key];
+      p2PortraitDom.style.display = 'block';
+    }
+
+    // Hide DOM elements when leaving this scene
+    this.events.on('shutdown', () => {
+      if (battleBg) battleBg.style.display = 'none';
+      if (p1PortraitDom) p1PortraitDom.style.display = 'none';
+      if (p2PortraitDom) p2PortraitDom.style.display = 'none';
+    });
+
     // ── Graphics layers ───────────────────────────────────────────────────
-    this._bgGfx         = this.add.graphics();  // background / arena
+    this._bgGfx         = this.add.graphics();
     this._shadowGfx     = this.add.graphics();  // player shadows
     this._gfx           = this.add.graphics();  // players + particles
-    this._uiGfx         = this.add.graphics();  // HUD (health bars etc.)
+    this._uiGfx         = this.add.graphics().setDepth(49);  // HUD bars (under HUD container)
 
     // ── Particles ─────────────────────────────────────────────────────────
     this._particles = new ParticleSystem(this);
@@ -73,44 +108,88 @@ class BattleScene extends Phaser.Scene {
       block: addKey(KeyBindings.p2.block),
     };
 
-    // ── UI Text objects ───────────────────────────────────────────────────
-    this._p1Label = this.add.text(80, 20, 'P1', {
-      fontFamily: 'Bangers, sans-serif', fontSize: '18px', color: '#7ecfff',
+    // ── HUD Container (drawn on top of everything) ─────────────────────────
+    this._hudContainer = this.add.container(0, 0).setDepth(50);
+
+    // ── Portraits (Background borders only, images are DOM overlays) ───────
+    const portraitSize = 52;
+    const portraitY = 32;
+
+    // P1 portrait (left side)
+    const p1PortBg = this.add.graphics();
+    p1PortBg.fillStyle(0x000000, 0.7);
+    p1PortBg.fillRoundedRect(10, portraitY - portraitSize/2, portraitSize + 6, portraitSize + 6, 6);
+    p1PortBg.lineStyle(2, GameState.p1Power.color, 0.9);
+    p1PortBg.strokeRoundedRect(10, portraitY - portraitSize/2, portraitSize + 6, portraitSize + 6, 6);
+    this._hudContainer.add(p1PortBg);
+
+    // P2 portrait (right side)
+    const p2PortBg = this.add.graphics();
+    p2PortBg.fillStyle(0x000000, 0.7);
+    p2PortBg.fillRoundedRect(W - portraitSize - 16, portraitY - portraitSize/2, portraitSize + 6, portraitSize + 6, 6);
+    p2PortBg.lineStyle(2, GameState.p2Power.color, 0.9);
+    p2PortBg.strokeRoundedRect(W - portraitSize - 16, portraitY - portraitSize/2, portraitSize + 6, portraitSize + 6, 6);
+    this._hudContainer.add(p2PortBg);
+
+    // ── Player Name Labels ─────────────────────────────────────────────────
+    const p1NameLabel = this.add.text(72, 6, 'P1', {
+      fontFamily: 'Edo, sans-serif', fontSize: '16px', color: GameState.p1Power.accentColor,
+      stroke: '#000', strokeThickness: 3,
     });
-    this._p2Label = this.add.text(W - 80, 20, GameState.mode === '1p' ? 'CPU' : 'P2', {
-      fontFamily: 'Bangers, sans-serif', fontSize: '18px', color: '#ff8888',
+    this._hudContainer.add(p1NameLabel);
+
+    const p2NameLabel = this.add.text(W - 72, 6, GameState.mode === '1p' ? 'CPU' : 'P2', {
+      fontFamily: 'Edo, sans-serif', fontSize: '16px', color: GameState.p2Power.accentColor,
+      stroke: '#000', strokeThickness: 3,
     }).setOrigin(1, 0);
+    this._hudContainer.add(p2NameLabel);
 
-    // Round indicators (dots)
+    // ── Power Name Labels ──────────────────────────────────────────────────
+    const p1PowerLabel = this.add.text(72, 56, GameState.p1Power.name, {
+      fontFamily: 'Edo, sans-serif', fontSize: '12px',
+      color: GameState.p1Power.accentColor,
+      stroke: '#000', strokeThickness: 2,
+    });
+    this._hudContainer.add(p1PowerLabel);
+
+    const p2PowerLabel = this.add.text(W - 72, 56, GameState.p2Power.name, {
+      fontFamily: 'Edo, sans-serif', fontSize: '12px',
+      color: GameState.p2Power.accentColor,
+      stroke: '#000', strokeThickness: 2,
+    }).setOrigin(1, 0);
+    this._hudContainer.add(p2PowerLabel);
+
+    // ── Round indicators (diamonds) ────────────────────────────────────────
     this._roundDots = this.add.graphics();
+    this._hudContainer.add(this._roundDots);
 
-    // Round / timer text
-    this._roundText = this.add.text(W / 2, 15, `ROUND ${GameState.roundNumber}`, {
-      fontFamily: 'Bangers, sans-serif', fontSize: '28px', color: '#ffffff',
-      stroke: '#6366f1', strokeThickness: 3,
+    // ── Center Timer Panel ─────────────────────────────────────────────────
+    const timerPanelGfx = this.add.graphics();
+    timerPanelGfx.fillStyle(0x0a0a12, 0.85);
+    timerPanelGfx.fillRoundedRect(W/2 - 40, 4, 80, 62, 8);
+    timerPanelGfx.lineStyle(2, 0x444466, 0.6);
+    timerPanelGfx.strokeRoundedRect(W/2 - 40, 4, 80, 62, 8);
+    this._hudContainer.add(timerPanelGfx);
+
+    this._roundText = this.add.text(W / 2, 10, `ROUND ${GameState.roundNumber}`, {
+      fontFamily: 'Edo, sans-serif', fontSize: '16px', color: '#cce0ff',
+      stroke: '#000', strokeThickness: 2,
     }).setOrigin(0.5, 0);
+    this._hudContainer.add(this._roundText);
 
-    this._timerText = this.add.text(W / 2, 46, '60', {
-      fontFamily: 'Bangers, sans-serif', fontSize: '22px', color: '#94a3b8',
+    this._timerText = this.add.text(W / 2, 30, '60', {
+      fontFamily: 'Edo, sans-serif', fontSize: '36px', color: '#ffffff',
+      stroke: '#000', strokeThickness: 3,
     }).setOrigin(0.5, 0);
+    this._hudContainer.add(this._timerText);
 
-    // Combo popup text
+    // ── Combo popup text ───────────────────────────────────────────────────
     this._comboText = this.add.text(W / 2, H / 2 - 80, '', {
-      fontFamily: 'Bangers, sans-serif', fontSize: '42px', color: '#ffcc00',
+      fontFamily: 'Edo, sans-serif', fontSize: '48px', color: '#ffcc00',
       stroke: '#7a5c00', strokeThickness: 5,
       shadow: { offsetX: 0, offsetY: 0, color: '#ffaa00', blur: 20, fill: true },
-    }).setOrigin(0.5).setAlpha(0);
+    }).setOrigin(0.5).setAlpha(0).setDepth(51);
     this._comboTimer = 0;
-
-    // Power labels under health bars
-    this.add.text(80, 58, GameState.p1Power.name, {
-      fontFamily: 'Inter, sans-serif', fontSize: '11px',
-      color:      GameState.p1Power.accentColor,
-    });
-    this.add.text(W - 80, 58, GameState.p2Power.name, {
-      fontFamily: 'Inter, sans-serif', fontSize: '11px',
-      color:      GameState.p2Power.accentColor,
-    }).setOrigin(1, 0);
 
     // ── Countdown before round starts ─────────────────────────────────────
     this._roundTimer  = ROUND_DURATION_S;
@@ -131,8 +210,8 @@ class BattleScene extends Phaser.Scene {
     this._pauseContainer.add(overlay);
 
     const pTitle = this.add.text(W / 2, H / 2 - 80, 'PAUSED', {
-      fontFamily: 'Bangers, sans-serif', fontSize: '72px', color: '#ffffff',
-      stroke: '#6366f1', strokeThickness: 6,
+      fontFamily: 'Edo, sans-serif', fontSize: '72px', color: '#ffffff',
+      stroke: '#000000', strokeThickness: 6,
       shadow: { offsetX: 0, offsetY: 0, color: '#818cf8', blur: 20, fill: true },
     }).setOrigin(0.5);
     this._pauseContainer.add(pTitle);
@@ -148,9 +227,6 @@ class BattleScene extends Phaser.Scene {
       if (this._roundOver || (this._paused && !this._isGamePaused)) return;
       this._togglePause();
     });
-
-    // ── Draw static background ────────────────────────────────────────────
-    this._drawArena();
 
     this.cameras.main.fadeIn(300, 10, 10, 26);
   }
@@ -168,7 +244,7 @@ class BattleScene extends Phaser.Scene {
     draw(false);
 
     const txt = this.add.text(x, y, label, {
-      fontFamily: 'Bangers, sans-serif', fontSize: '26px', color: '#ffffff',
+      fontFamily: 'Edo, sans-serif', fontSize: '26px', color: '#ffffff',
     }).setOrigin(0.5);
 
     const zone = this.add.zone(x, y, w, h).setInteractive({ cursor: 'pointer' });
@@ -184,111 +260,171 @@ class BattleScene extends Phaser.Scene {
     this._pauseContainer.setVisible(this._isGamePaused);
   }
 
-  // ── Arena Background ──────────────────────────────────────────────────────
-  _drawArena() {
-    const W = this._W;
-    const H = this._H;
-    const g = this._bgGfx;
 
-    // Sky gradient
-    g.fillGradientStyle(0x0d0d1f, 0x0d0d1f, 0x1a1035, 0x1a1035, 1);
-    g.fillRect(0, 0, W, H);
-
-    // Stars
-    for (let i = 0; i < 60; i++) {
-      const sx = Phaser.Math.Between(0, W);
-      const sy = Phaser.Math.Between(0, GROUND_Y - 80);
-      const sr = Math.random() * 1.5 + 0.3;
-      g.fillStyle(0xffffff, Math.random() * 0.5 + 0.1);
-      g.fillCircle(sx, sy, sr);
-    }
-
-    // Arena platform
-    g.fillStyle(0x1e1b3a, 1);
-    g.fillRect(ARENA_LEFT, GROUND_Y + 5, ARENA_RIGHT - ARENA_LEFT, 80);
-
-    // Floor glowing edge
-    g.lineStyle(3, 0x6366f1, 0.8);
-    g.lineBetween(ARENA_LEFT, GROUND_Y + 5, ARENA_RIGHT, GROUND_Y + 5);
-    g.lineStyle(1, 0x818cf8, 0.3);
-    g.lineBetween(ARENA_LEFT, GROUND_Y + 9, ARENA_RIGHT, GROUND_Y + 9);
-
-    // Corner columns
-    for (const cx of [ARENA_LEFT, ARENA_RIGHT]) {
-      g.fillStyle(0x2d2b55, 1);
-      g.fillRect(cx - 10, GROUND_Y + 5, 20, 75);
-      g.lineStyle(2, 0x6366f1, 0.5);
-      g.strokeRect(cx - 10, GROUND_Y + 5, 20, 75);
-    }
-
-    // Center line
-    g.lineStyle(1, 0x6366f1, 0.15);
-    g.lineBetween(W / 2, GROUND_Y + 5, W / 2, GROUND_Y + 80);
-
-    // Background glow beneath stage
-    g.fillStyle(0x4f46e5, 0.05);
-    g.fillRect(ARENA_LEFT, GROUND_Y + 5, ARENA_RIGHT - ARENA_LEFT, 10);
-  }
-
-  // ── Round Win Indicator Dots ──────────────────────────────────────────────
+  // ── Round Win Indicator Diamonds ────────────────────────────────────────────
   _drawRoundDots() {
     const g = this._roundDots;
     g.clear();
     const W = this._W;
-    const r = 7;
-    const gap = 20;
-
-    // P1 win dots (left side)
-    for (let i = 0; i < GameState.p1Wins; i++) {
-      g.fillStyle(0x7ecfff, 1);
-      g.fillCircle(80 + i * (r * 2 + 4), 50, r);
-    }
-    // Remaining round dots (empty)
     const maxWins = Math.ceil(GameState.maxRounds / 2);
-    for (let i = GameState.p1Wins; i < maxWins; i++) {
-      g.lineStyle(2, 0x7ecfff, 0.3);
-      g.strokeCircle(80 + i * (r * 2 + 4), 50, r);
+    const dSize = 6; // diamond half-size
+    const dGap = 16;
+    const dY = 72;
+
+    // Helper to draw a diamond
+    const drawDiamond = (cx, cy, size, fillColor, fillAlpha, strokeColor, strokeAlpha) => {
+      if (fillColor !== null) {
+        g.fillStyle(fillColor, fillAlpha);
+        g.fillPoints([{x: cx, y: cy - size}, {x: cx + size, y: cy}, {x: cx, y: cy + size}, {x: cx - size, y: cy}], true);
+      }
+      if (strokeColor !== null) {
+        g.lineStyle(1.5, strokeColor, strokeAlpha);
+        g.strokePoints([{x: cx, y: cy - size}, {x: cx + size, y: cy}, {x: cx, y: cy + size}, {x: cx - size, y: cy}], true);
+      }
+    };
+
+    // P1 diamonds (left, after portrait)
+    for (let i = 0; i < maxWins; i++) {
+      const dx = 76 + i * dGap;
+      if (i < GameState.p1Wins) {
+        drawDiamond(dx, dY, dSize, GameState.p1Power.color, 1, 0xffffff, 0.5);
+      } else {
+        drawDiamond(dx, dY, dSize, null, 0, 0x666688, 0.5);
+      }
     }
 
-    // P2 win dots (right side, mirrored)
-    for (let i = 0; i < GameState.p2Wins; i++) {
-      g.fillStyle(0xff8888, 1);
-      g.fillCircle(W - 80 - i * (r * 2 + 4), 50, r);
-    }
-    for (let i = GameState.p2Wins; i < maxWins; i++) {
-      g.lineStyle(2, 0xff8888, 0.3);
-      g.strokeCircle(W - 80 - i * (r * 2 + 4), 50, r);
+    // P2 diamonds (right, before portrait, mirrored)
+    for (let i = 0; i < maxWins; i++) {
+      const dx = W - 76 - i * dGap;
+      if (i < GameState.p2Wins) {
+        drawDiamond(dx, dY, dSize, GameState.p2Power.color, 1, 0xffffff, 0.5);
+      } else {
+        drawDiamond(dx, dY, dSize, null, 0, 0x666688, 0.5);
+      }
     }
   }
 
-  // ── Health Bar Drawing ────────────────────────────────────────────────────
+  // ── Health Bar Drawing (Angled / Fighting Game Style) ──────────────────────
   _drawHealthBars() {
     const g   = this._uiGfx;
     const W   = this._W;
-    const bW  = 300;
-    const bH  = 18;
-    const bY  = 28;
     g.clear();
 
-    // P1 health bar (left, fills right)
-    const p1Pct = this._p1.health / this._p1.maxHealth;
-    const p1Col = p1Pct > 0.5 ? 0x22c55e : p1Pct > 0.25 ? 0xf59e0b : 0xef4444;
-    g.fillStyle(0x1e1b4b, 0.9);
-    g.fillRoundedRect(80, bY, bW, bH, 6);
-    g.fillStyle(p1Col, 1);
-    g.fillRoundedRect(80, bY, bW * p1Pct, bH, 6);
-    g.lineStyle(1, 0x6366f1, 0.5);
-    g.strokeRoundedRect(80, bY, bW, bH, 6);
+    // Bar dimensions
+    const barW     = 340;  // total bar width
+    const barH     = 22;   // bar height
+    const barY     = 22;   // top of bar
+    const slant    = 12;   // how much the bar is angled
+    const p1Left   = 72;   // left edge of P1 bar
+    const p2Right  = W - 72; // right edge of P2 bar
 
-    // P2 health bar (right, fills left)
-    const p2Pct = this._p2.health / this._p2.maxHealth;
-    const p2Col = p2Pct > 0.5 ? 0x22c55e : p2Pct > 0.25 ? 0xf59e0b : 0xef4444;
-    g.fillStyle(0x1e1b4b, 0.9);
-    g.fillRoundedRect(W - 80 - bW, bY, bW, bH, 6);
-    g.fillStyle(p2Col, 1);
-    g.fillRoundedRect(W - 80 - bW * p2Pct, bY, bW * p2Pct, bH, 6);
-    g.lineStyle(1, 0x6366f1, 0.5);
-    g.strokeRoundedRect(W - 80 - bW, bY, bW, bH, 6);
+    // ── P1 Health Bar (left side, fills from left to right) ──
+    const p1Pct = Math.max(0, this._p1.health / this._p1.maxHealth);
+    const p1Color = GameState.p1Power.color;
+
+    // Background shape (dark)
+    g.fillStyle(0x0a0a18, 0.85);
+    g.beginPath();
+    g.moveTo(p1Left,              barY);
+    g.lineTo(p1Left + barW,       barY);
+    g.lineTo(p1Left + barW - slant, barY + barH);
+    g.lineTo(p1Left,              barY + barH);
+    g.closePath();
+    g.fillPath();
+
+    // Fill shape (element color)
+    if (p1Pct > 0) {
+      const fillW = barW * p1Pct;
+      g.fillStyle(p1Color, 0.9);
+      g.beginPath();
+      g.moveTo(p1Left,                            barY);
+      g.lineTo(p1Left + fillW,                    barY);
+      g.lineTo(p1Left + fillW - slant * p1Pct,    barY + barH);
+      g.lineTo(p1Left,                            barY + barH);
+      g.closePath();
+      g.fillPath();
+
+      // Inner bright highlight (top edge glow)
+      g.fillStyle(0xffffff, 0.15);
+      g.beginPath();
+      g.moveTo(p1Left,           barY);
+      g.lineTo(p1Left + fillW,   barY);
+      g.lineTo(p1Left + fillW,   barY + 4);
+      g.lineTo(p1Left,           barY + 4);
+      g.closePath();
+      g.fillPath();
+    }
+
+    // Border stroke
+    g.lineStyle(2, 0x555577, 0.8);
+    g.beginPath();
+    g.moveTo(p1Left,              barY);
+    g.lineTo(p1Left + barW,       barY);
+    g.lineTo(p1Left + barW - slant, barY + barH);
+    g.lineTo(p1Left,              barY + barH);
+    g.closePath();
+    g.strokePath();
+
+    // Element-colored top edge
+    g.lineStyle(1, p1Color, 0.6);
+    g.beginPath();
+    g.moveTo(p1Left, barY);
+    g.lineTo(p1Left + barW, barY);
+    g.strokePath();
+
+    // ── P2 Health Bar (right side, fills from right to left) ──
+    const p2Pct = Math.max(0, this._p2.health / this._p2.maxHealth);
+    const p2Color = GameState.p2Power.color;
+
+    // Background shape (dark)
+    g.fillStyle(0x0a0a18, 0.85);
+    g.beginPath();
+    g.moveTo(p2Right - barW,         barY);
+    g.lineTo(p2Right,                barY);
+    g.lineTo(p2Right,                barY + barH);
+    g.lineTo(p2Right - barW + slant, barY + barH);
+    g.closePath();
+    g.fillPath();
+
+    // Fill shape (element color)
+    if (p2Pct > 0) {
+      const fillW = barW * p2Pct;
+      g.fillStyle(p2Color, 0.9);
+      g.beginPath();
+      g.moveTo(p2Right - fillW,                     barY);
+      g.lineTo(p2Right,                             barY);
+      g.lineTo(p2Right,                             barY + barH);
+      g.lineTo(p2Right - fillW + slant * p2Pct,     barY + barH);
+      g.closePath();
+      g.fillPath();
+
+      // Inner bright highlight
+      g.fillStyle(0xffffff, 0.15);
+      g.beginPath();
+      g.moveTo(p2Right - fillW, barY);
+      g.lineTo(p2Right,         barY);
+      g.lineTo(p2Right,         barY + 4);
+      g.lineTo(p2Right - fillW, barY + 4);
+      g.closePath();
+      g.fillPath();
+    }
+
+    // Border stroke
+    g.lineStyle(2, 0x555577, 0.8);
+    g.beginPath();
+    g.moveTo(p2Right - barW,         barY);
+    g.lineTo(p2Right,                barY);
+    g.lineTo(p2Right,                barY + barH);
+    g.lineTo(p2Right - barW + slant, barY + barH);
+    g.closePath();
+    g.strokePath();
+
+    // Element-colored top edge
+    g.lineStyle(1, p2Color, 0.6);
+    g.beginPath();
+    g.moveTo(p2Right - barW, barY);
+    g.lineTo(p2Right, barY);
+    g.strokePath();
   }
 
   // ── Countdown ────────────────────────────────────────────────────────────
@@ -297,13 +433,13 @@ class BattleScene extends Phaser.Scene {
     const H = this._H;
 
     const txt = this.add.text(W / 2, H / 2, count.toString(), {
-      fontFamily: 'Bangers, sans-serif',
+      fontFamily: 'Edo, sans-serif',
       fontSize:   '160px',
       color:      '#ffffff',
-      stroke:     '#6366f1',
+      stroke:     '#000000',
       strokeThickness: 8,
       shadow: { offsetX: 0, offsetY: 0, color: '#818cf8', blur: 40, fill: true },
-    }).setOrigin(0.5).setAlpha(1);
+    }).setOrigin(0.5).setAlpha(1).setDepth(60);
 
     this.tweens.add({
       targets:  txt,
@@ -319,13 +455,13 @@ class BattleScene extends Phaser.Scene {
         } else {
           // FIGHT!
           const fight = this.add.text(W / 2, H / 2, 'FIGHT!', {
-            fontFamily: 'Bangers, sans-serif',
+            fontFamily: 'Edo, sans-serif',
             fontSize:   '100px',
             color:      '#ffcc00',
-            stroke:     '#7a5c00',
+            stroke:     '#000000',
             strokeThickness: 6,
             shadow: { offsetX: 0, offsetY: 0, color: '#ff8800', blur: 30, fill: true },
-          }).setOrigin(0.5);
+          }).setOrigin(0.5).setDepth(60);
           this.tweens.add({
             targets:  fight,
             alpha:    0,
@@ -420,13 +556,13 @@ class BattleScene extends Phaser.Scene {
     const col   = winner === 'p1' ? '#7ecfff' : winner === 'p2' ? '#ff8888' : '#ffcc00';
 
     const banner = this.add.text(W / 2, H / 2, label, {
-      fontFamily: 'Bangers, sans-serif',
+      fontFamily: 'Edo, sans-serif',
       fontSize:   '90px',
       color:      col,
       stroke:     '#000000',
       strokeThickness: 8,
       shadow: { offsetX: 0, offsetY: 0, color: col, blur: 40, fill: true },
-    }).setOrigin(0.5).setAlpha(0);
+    }).setOrigin(0.5).setAlpha(0).setDepth(60);
 
     this.tweens.add({
       targets:  banner,

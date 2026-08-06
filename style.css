@@ -40,6 +40,16 @@ html, body {
   display: none;
 }
 
+/* Battle background image — same pattern as video */
+#battle-bg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  display: none;
+}
+
 /* Phaser canvas container fills the wrapper */
 #game-container {
   position: absolute;
@@ -57,4 +67,23 @@ canvas {
 body {
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* Battle HUD Portraits (DOM overlay) */
+/* Positioned using percentages relative to the 960x540 logical resolution */
+.hud-portrait {
+  position: absolute;
+  top: 1.666666%;      /* 9 / 540 */
+  width: 5.416666%;    /* 52 / 960 */
+  height: 9.629629%;   /* 52 / 540 */
+  object-fit: cover;
+  display: none;
+  z-index: 10;
+  border-radius: 4px;
+}
+#hud-p1-portrait {
+  left: 1.666666%;     /* 16 / 960 */
+}
+#hud-p2-portrait {
+  right: 1.666666%;    /* 16 / 960 */
 }
