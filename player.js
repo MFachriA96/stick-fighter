@@ -383,89 +383,98 @@ class Player {
     const pCol = this.power.color;
     const st   = this.state;
 
-    // Shadow
-    gfx.fillStyle(0x000000, 0.3);
-    gfx.fillEllipse(x, GROUND_Y + 5, 50, 12);
+    // ── Shadow (element-tinted) ─────────────────────────────────
+    gfx.fillStyle(pCol, 0.08);
+    gfx.fillEllipse(x, GROUND_Y + 5, 70, 16);
+    gfx.fillStyle(0x000000, 0.35);
+    gfx.fillEllipse(x, GROUND_Y + 5, 55, 13);
+
+    // ── Full-Body Glow (behind character) ──────────────────────
+    if (st !== STATE.KO) {
+      gfx.fillStyle(pCol, 0.07 + Math.sin(Date.now() * 0.003 * 2) * 0.025);
+      gfx.fillCircle(x, y - 55, 55);
+    }
 
     // ── Element Aura Effect ────────────────────────────────────
-    // Persistent ambient effect around the character
     if (st !== STATE.KO) {
       const time = Date.now() * 0.003;
       const pk = this.power.key;
 
       if (pk === 'fire') {
         // Fire: flickering flame particles rising upward
-        for (let i = 0; i < 6; i++) {
-          const seed = i * 1.7 + time;
-          const fx = x + Math.sin(seed * 2.3) * 20;
-          const fy = y - 30 - ((seed * 40) % 90);
-          const fSize = 3 + Math.sin(seed * 3) * 2;
-          const alpha = 0.3 - ((seed * 40) % 90) / 300;
+        for (let i = 0; i < 10; i++) {
+          const seed = i * 1.3 + time;
+          const fx = x + Math.sin(seed * 2.3) * 24;
+          const fy = y - 20 - ((seed * 45) % 110);
+          const fSize = 3.5 + Math.sin(seed * 3) * 2.5;
+          const alpha = 0.35 - ((seed * 45) % 110) / 300;
           if (alpha > 0.02) {
-            gfx.fillStyle(i % 2 === 0 ? 0xff6a00 : 0xff3300, alpha);
+            gfx.fillStyle(i % 3 === 0 ? 0xffcc00 : (i % 3 === 1 ? 0xff6a00 : 0xff3300), alpha);
             gfx.fillCircle(fx, fy, fSize);
           }
         }
-        // Subtle glow at feet
-        gfx.fillStyle(0xff6a00, 0.06 + Math.sin(time * 2) * 0.03);
-        gfx.fillCircle(x, y - 50, 40);
+        // Ground fire glow
+        gfx.fillStyle(0xff6a00, 0.1 + Math.sin(time * 2.5) * 0.04);
+        gfx.fillEllipse(x, GROUND_Y, 50, 10);
 
       } else if (pk === 'ice') {
         // Ice: sparkle crystals floating around
-        for (let i = 0; i < 5; i++) {
-          const seed = i * 2.1 + time;
-          const ix = x + Math.sin(seed * 1.5) * 25;
-          const iy = y - 40 - Math.cos(seed * 0.8) * 40;
-          const alpha = 0.2 + Math.sin(seed * 3) * 0.15;
-          const sz = 2 + Math.sin(seed * 2) * 1.5;
-          gfx.fillStyle(0x88ddff, Math.max(0, alpha));
+        for (let i = 0; i < 8; i++) {
+          const seed = i * 1.8 + time;
+          const ix = x + Math.sin(seed * 1.5) * 30;
+          const iy = y - 35 - Math.cos(seed * 0.8) * 50;
+          const alpha = 0.3 + Math.sin(seed * 3) * 0.15;
+          const sz = 2.5 + Math.sin(seed * 2) * 2;
+          gfx.fillStyle(i % 2 === 0 ? 0x88ddff : 0xccffff, Math.max(0, alpha));
+          // Diamond-shaped crystal
           gfx.fillRect(ix - sz/2, iy - sz/2, sz, sz);
         }
-        // Frosty glow
-        gfx.fillStyle(0x55aaff, 0.05 + Math.sin(time * 1.5) * 0.02);
-        gfx.fillCircle(x, y - 50, 38);
+        // Frosty ground glow
+        gfx.fillStyle(0x55aaff, 0.08 + Math.sin(time * 1.5) * 0.03);
+        gfx.fillEllipse(x, GROUND_Y, 45, 10);
 
       } else if (pk === 'speed') {
         // Lightning: crackling bolts around the body
-        for (let i = 0; i < 4; i++) {
-          const seed = i * 1.3 + time;
-          if (Math.sin(seed * 5) > 0.3) {
-            const sx = x + Math.sin(seed * 3) * 20 * dir;
-            const sy = y - 30 - Math.abs(Math.sin(seed * 2)) * 70;
-            const ex = sx + (Math.sin(seed * 7) * 15);
-            const ey = sy + 10 + Math.sin(seed * 4) * 8;
-            const mx = (sx + ex) / 2 + Math.sin(seed * 11) * 6;
-            const my = (sy + ey) / 2;
-            gfx.lineStyle(1.5, 0xffff44, 0.5);
+        for (let i = 0; i < 6; i++) {
+          const seed = i * 1.1 + time;
+          if (Math.sin(seed * 5) > 0.2) {
+            const sx = x + Math.sin(seed * 3) * 25 * dir;
+            const sy = y - 25 - Math.abs(Math.sin(seed * 2)) * 80;
+            const ex2 = sx + (Math.sin(seed * 7) * 18);
+            const ey2 = sy + 12 + Math.sin(seed * 4) * 10;
+            const mx2 = (sx + ex2) / 2 + Math.sin(seed * 11) * 8;
+            const my2 = (sy + ey2) / 2;
+            gfx.lineStyle(2, 0xffff44, 0.6);
             gfx.beginPath();
-            gfx.moveTo(sx, sy);
-            gfx.lineTo(mx, my);
-            gfx.lineTo(ex, ey);
+            gfx.moveTo(sx, sy); gfx.lineTo(mx2, my2); gfx.lineTo(ex2, ey2);
             gfx.strokePath();
           }
         }
-        // Electric glow
-        gfx.fillStyle(0xffff00, 0.04 + Math.sin(time * 4) * 0.03);
-        gfx.fillCircle(x, y - 50, 35);
+        // Electric ground glow
+        gfx.fillStyle(0xffff00, 0.07 + Math.sin(time * 4) * 0.04);
+        gfx.fillEllipse(x, GROUND_Y, 42, 10);
 
       } else if (pk === 'heavy') {
         // Hammer: pulsing purple energy circles
-        const pulseR = 30 + Math.sin(time * 2) * 8;
-        gfx.lineStyle(1.5, 0xaa44ff, 0.15 + Math.sin(time * 2.5) * 0.1);
+        const pulseR = 35 + Math.sin(time * 2) * 10;
+        gfx.lineStyle(2, 0xaa44ff, 0.18 + Math.sin(time * 2.5) * 0.1);
         gfx.strokeCircle(x, y - 55, pulseR);
-        gfx.lineStyle(1, 0xcc66ff, 0.1 + Math.sin(time * 3) * 0.05);
-        gfx.strokeCircle(x, y - 55, pulseR * 1.3);
-        // Ground cracks (small lines at feet)
-        for (let i = 0; i < 3; i++) {
-          const seed = i * 2.5 + time * 0.5;
-          const cx = x + Math.sin(seed) * 18;
-          const alpha = 0.2 + Math.sin(seed * 2) * 0.1;
-          gfx.lineStyle(1.5, 0x8833cc, Math.max(0, alpha));
+        gfx.lineStyle(1.5, 0xcc66ff, 0.12 + Math.sin(time * 3) * 0.06);
+        gfx.strokeCircle(x, y - 55, pulseR * 1.35);
+        // Ground cracks
+        for (let i = 0; i < 4; i++) {
+          const seed = i * 2.0 + time * 0.5;
+          const cx = x + Math.sin(seed) * 22;
+          const alpha = 0.25 + Math.sin(seed * 2) * 0.12;
+          gfx.lineStyle(2, 0x8833cc, Math.max(0, alpha));
           gfx.beginPath();
           gfx.moveTo(cx, GROUND_Y + 3);
-          gfx.lineTo(cx + Math.sin(seed * 3) * 8, GROUND_Y + 8);
+          gfx.lineTo(cx + Math.sin(seed * 3) * 10, GROUND_Y + 10);
           gfx.strokePath();
         }
+        // Purple ground glow
+        gfx.fillStyle(0xaa44ff, 0.08 + Math.sin(time * 2) * 0.03);
+        gfx.fillEllipse(x, GROUND_Y, 48, 10);
       }
     }
 
@@ -585,63 +594,183 @@ class Player {
       armL = -1.0; armR = 0.6;
     }
 
-    // Helper to draw a limb as a line from a pivot (returns end point)
-    const limb = (px, py, angle, length, thick, color) => {
+    // ── Dark Warrior Body Rendering ──────────────────────────────
+    const darkFill = 0x1a1a2e;   // dark navy body fill
+    const glowCol  = pCol;       // element color for glow edges
+    const _time    = Date.now() * 0.003;
+
+    // Two-segment limb helper (upper+lower with joint)
+    const limb2 = (px, py, angle, length, thick, bendDir) => {
       const ex = px + Math.sin(angle) * length;
       const ey = py + Math.cos(angle) * length;
-      gfx.lineStyle(thick, color, 1);
-      gfx.beginPath();
-      gfx.moveTo(px, py);
-      gfx.lineTo(ex, ey);
-      gfx.strokePath();
-      return { x: ex, y: ey };
+      // Joint at midpoint, offset perpendicular for natural bend
+      const dx2 = ex - px, dy2 = ey - py;
+      const perpX = -dy2, perpY = dx2;
+      const pLen2 = Math.sqrt(perpX * perpX + perpY * perpY) || 1;
+      const bendAmt = length * 0.16;
+      const jx = (px + ex) / 2 + (perpX / pLen2) * bendAmt * bendDir;
+      const jy = (py + ey) / 2 + (perpY / pLen2) * bendAmt * bendDir;
+      // Upper segment — dark fill
+      gfx.lineStyle(thick + 4, darkFill, 1);
+      gfx.beginPath(); gfx.moveTo(px, py); gfx.lineTo(jx, jy); gfx.strokePath();
+      // Upper segment — element glow
+      gfx.lineStyle(thick, glowCol, 0.55);
+      gfx.beginPath(); gfx.moveTo(px, py); gfx.lineTo(jx, jy); gfx.strokePath();
+      // Lower segment — dark fill
+      gfx.lineStyle(thick + 3, darkFill, 1);
+      gfx.beginPath(); gfx.moveTo(jx, jy); gfx.lineTo(ex, ey); gfx.strokePath();
+      // Lower segment — element glow
+      gfx.lineStyle(thick - 0.5, glowCol, 0.45);
+      gfx.beginPath(); gfx.moveTo(jx, jy); gfx.lineTo(ex, ey); gfx.strokePath();
+      // Joint circle
+      gfx.fillStyle(darkFill, 1);
+      gfx.fillCircle(jx, jy, thick * 0.55 + 1);
+      gfx.lineStyle(1.5, glowCol, 0.45);
+      gfx.strokeCircle(jx, jy, thick * 0.55 + 1);
+      // Hand/foot circle
+      gfx.fillStyle(darkFill, 1);
+      gfx.fillCircle(ex, ey, thick * 0.4 + 0.5);
+      gfx.lineStyle(1, glowCol, 0.4);
+      gfx.strokeCircle(ex, ey, thick * 0.4 + 0.5);
+      return { x: ex, y: ey, jx, jy };
     };
 
-    // ── Legs ──
+    // ── Legs (two-segment, knees bend forward) ──
     const hipY   = y - 45;
     const legLen = 50;
-    const legEndL = limb(x, hipY,  dir * legL + Math.PI / 12, legLen, 4, col);
-    const legEndR = limb(x, hipY, -dir * legR - Math.PI / 12, legLen, 4, col);
+    const legEndL = limb2(x, hipY,  dir * legL + Math.PI / 12, legLen, 5, dir);
+    const legEndR = limb2(x, hipY, -dir * legR - Math.PI / 12, legLen, 5, dir);
 
-    // ── Body ──
+    // ── Torso (filled muscular trapezoid) ──
     const shoulderY = hipY - 55;
-    gfx.lineStyle(5, col, 1);
-    gfx.beginPath();
-    gfx.moveTo(x, hipY);
-    gfx.lineTo(x + Math.sin(bodyTilt) * 20, shoulderY);
-    gfx.strokePath();
     const sX = x + Math.sin(bodyTilt) * 20;
+    const shW = 15;  // shoulder half-width
+    const hiW = 9;   // hip half-width
+    const tPts = [
+      { x: sX - shW, y: shoulderY },
+      { x: sX + shW, y: shoulderY },
+      { x: x + hiW, y: hipY },
+      { x: x - hiW, y: hipY },
+    ];
+    gfx.fillStyle(darkFill, 1);
+    gfx.fillPoints(tPts, true);
+    gfx.lineStyle(2, glowCol, 0.5);
+    gfx.strokePoints(tPts, true);
+    // Center line detail
+    gfx.lineStyle(1, glowCol, 0.15);
+    gfx.beginPath(); gfx.moveTo(sX, shoulderY + 6); gfx.lineTo(x, hipY - 4); gfx.strokePath();
+    // Shoulder caps
+    gfx.fillStyle(darkFill, 1);
+    gfx.fillCircle(sX - shW + 1, shoulderY + 1, 5);
+    gfx.fillCircle(sX + shW - 1, shoulderY + 1, 5);
+    gfx.lineStyle(1.5, glowCol, 0.4);
+    gfx.strokeCircle(sX - shW + 1, shoulderY + 1, 5);
+    gfx.strokeCircle(sX + shW - 1, shoulderY + 1, 5);
 
-    // ── Arms ──
-    const armLen    = 40;
+    // ── Arms (two-segment, elbows bend backward) ──
+    const armLen    = 42;
     const attackArm = st === STATE.PUNCH || st === STATE.KICK;
-    const armColorL = (attackArm && !this.facingRight) ? pCol : col;
-    const armColorR = (attackArm &&  this.facingRight) ? pCol : col;
-    const handL = limb(sX, shoulderY,  dir * armL + Math.PI / 8, armLen, 4, armColorL);
-    const handR = limb(sX, shoulderY, -dir * armR - Math.PI / 8, armLen, 4, armColorR);
+    const handL = limb2(sX, shoulderY,  dir * armL + Math.PI / 8, armLen, 5, -dir);
+    const handR = limb2(sX, shoulderY, -dir * armR - Math.PI / 8, armLen, 5, -dir);
 
-    // ── Head ──
-    const headY  = y - 105;
-    const hc = (st === STATE.KO) ? 0x888888 : col;
-    gfx.lineStyle(3, hc, 1);
-    gfx.strokeCircle(sX, headY, HEAD_R);
+    // ── Head (filled dark circle + element outline) ──
+    const headR2 = 16;
+    const headY  = y - 108;
+    gfx.fillStyle(darkFill, 1);
+    gfx.fillCircle(sX, headY, headR2);
+    const headGlow = (st === STATE.KO) ? 0x555555 : glowCol;
+    gfx.lineStyle(2.5, headGlow, 0.7);
+    gfx.strokeCircle(sX, headY, headR2);
 
     // Eyes
     const eyeDir = this.facingRight ? 1 : -1;
     const eyeX   = sX + eyeDir * 5;
+    const pk = this.power.key;
     if (st === STATE.KO) {
-      gfx.lineStyle(2, 0xffffff, 0.9);
+      gfx.lineStyle(2, 0xff4444, 0.9);
       gfx.beginPath();
-      gfx.moveTo(eyeX - 3, headY - 3); gfx.lineTo(eyeX + 3, headY + 3);
-      gfx.moveTo(eyeX + 3, headY - 3); gfx.lineTo(eyeX - 3, headY + 3);
+      gfx.moveTo(eyeX - 3, headY - 2); gfx.lineTo(eyeX + 3, headY + 2);
+      gfx.moveTo(eyeX + 3, headY - 2); gfx.lineTo(eyeX - 3, headY + 2);
       gfx.strokePath();
     } else {
-      gfx.fillStyle(0xffffff, 1);
-      gfx.fillCircle(eyeX, headY, 2.5);
+      // Glowing element-colored eye
+      gfx.fillStyle(glowCol, 0.9);
+      gfx.fillCircle(eyeX, headY, 3);
+      gfx.fillStyle(0xffffff, 0.85);
+      gfx.fillCircle(eyeX + eyeDir * 0.8, headY - 0.5, 1.3);
+    }
+
+    // ── Character-Specific Head Details ──
+    if (st !== STATE.KO) {
+      if (pk === 'fire') {
+        // Flame hair spikes
+        for (let i = 0; i < 6; i++) {
+          const a = (i - 2.5) * 0.32 + Math.sin(_time * 3.5 + i * 1.3) * 0.15;
+          const sLen = 11 + Math.sin(_time * 4.5 + i * 1.7) * 6;
+          const bx2 = sX + Math.sin(a) * headR2 * 0.4;
+          const by2 = headY - headR2 * 0.8;
+          gfx.lineStyle(2.5, i % 2 === 0 ? 0xff6a00 : 0xffcc00, 0.9 - i * 0.05);
+          gfx.beginPath();
+          gfx.moveTo(bx2, by2);
+          gfx.lineTo(bx2 + Math.sin(a) * sLen * 0.5, by2 - sLen);
+          gfx.strokePath();
+        }
+      } else if (pk === 'ice') {
+        // Ice helmet — angular pointed crown
+        const hy2 = headY - headR2;
+        gfx.lineStyle(2.5, 0x44aaff, 0.85);
+        gfx.beginPath();
+        gfx.moveTo(sX - headR2 * 0.9, headY - 2);
+        gfx.lineTo(sX - headR2 * 0.5, hy2 - 4);
+        gfx.lineTo(sX, hy2 - 13);
+        gfx.lineTo(sX + headR2 * 0.5, hy2 - 4);
+        gfx.lineTo(sX + headR2 * 0.9, headY - 2);
+        gfx.strokePath();
+        // Cheek guards
+        gfx.lineStyle(2, 0x3388cc, 0.6);
+        gfx.beginPath(); gfx.moveTo(sX - headR2, headY + 3); gfx.lineTo(sX - headR2 - 4, headY + 10); gfx.strokePath();
+        gfx.beginPath(); gfx.moveTo(sX + headR2, headY + 3); gfx.lineTo(sX + headR2 + 4, headY + 10); gfx.strokePath();
+      } else if (pk === 'speed') {
+        // Headband + flowing hair
+        gfx.lineStyle(2.5, 0xffee00, 0.8);
+        gfx.beginPath(); gfx.moveTo(sX - headR2, headY - 3); gfx.lineTo(sX + headR2, headY - 3); gfx.strokePath();
+        // Trailing hair
+        for (let i = 0; i < 4; i++) {
+          const hLen = 15 + i * 5 + Math.sin(_time * 2.2 + i) * 4;
+          gfx.lineStyle(2.2 - i * 0.3, 0x222244, 0.75 - i * 0.12);
+          gfx.beginPath();
+          gfx.moveTo(sX - eyeDir * headR2 * 0.5, headY - headR2 * 0.5 + i * 3);
+          gfx.lineTo(sX - eyeDir * (headR2 + hLen), headY - headR2 * 0.2 + i * 4 + Math.sin(_time * 2.5 + i * 0.8) * 5);
+          gfx.strokePath();
+        }
+        // Headband trailing end
+        const bLen = 20 + Math.sin(_time * 3) * 5;
+        gfx.lineStyle(2, 0xffee00, 0.55);
+        gfx.beginPath();
+        gfx.moveTo(sX - eyeDir * headR2, headY - 3);
+        gfx.lineTo(sX - eyeDir * (headR2 + bLen), headY + Math.sin(_time * 2.5) * 5);
+        gfx.strokePath();
+      } else if (pk === 'heavy') {
+        // Hood/mask over top half
+        const hoodPts = [
+          { x: sX - headR2 - 3, y: headY - headR2 * 0.15 },
+          { x: sX - headR2 * 0.35, y: headY - headR2 - 8 },
+          { x: sX + headR2 * 0.35, y: headY - headR2 - 8 },
+          { x: sX + headR2 + 3, y: headY - headR2 * 0.15 },
+        ];
+        gfx.fillStyle(darkFill, 0.95);
+        gfx.fillPoints(hoodPts, true);
+        gfx.lineStyle(2, 0xaa44ff, 0.65);
+        gfx.strokePoints(hoodPts, true);
+        // Menacing eye glow (bigger)
+        gfx.fillStyle(0xaa44ff, 0.6);
+        gfx.fillCircle(eyeX, headY, 4);
+        gfx.fillStyle(0xffffff, 0.5);
+        gfx.fillCircle(eyeX, headY, 1.5);
+      }
     }
 
     // ── Character Weapons & Attack VFX ─────────────────────────
-    const pk = this.power.key;
     const leadHand = this.facingRight ? handR : handL;
     const rearHand = this.facingRight ? handL : handR;
     const kickFoot = this.facingRight ? legEndR : legEndL;
@@ -654,149 +783,170 @@ class Player {
     const wny = wdy / wdl;
 
     if (pk === 'fire') {
-      // ── FIRE FIST: Flame gauntlets ──
-      const gSize = attackArm ? 9 : 6;
+      // ── FIRE FIST: Large flame gauntlets ──
+      const gSize = attackArm ? 12 : 8;
       // Lead gauntlet (outer glow + core)
-      gfx.fillStyle(0xff3300, 0.5);
-      gfx.fillCircle(leadHand.x, leadHand.y, gSize + 4);
+      gfx.fillStyle(0xff3300, 0.45);
+      gfx.fillCircle(leadHand.x, leadHand.y, gSize + 6);
       gfx.fillStyle(0xff6a00, 0.9);
       gfx.fillCircle(leadHand.x, leadHand.y, gSize);
-      gfx.fillStyle(0xffcc44, 0.7);
-      gfx.fillCircle(leadHand.x, leadHand.y, gSize * 0.5);
+      gfx.fillStyle(0xffcc44, 0.75);
+      gfx.fillCircle(leadHand.x, leadHand.y, gSize * 0.45);
       // Rear gauntlet
-      gfx.fillStyle(0xff6a00, 0.6);
-      gfx.fillCircle(rearHand.x, rearHand.y, gSize - 2);
+      gfx.fillStyle(0xff3300, 0.3);
+      gfx.fillCircle(rearHand.x, rearHand.y, gSize);
+      gfx.fillStyle(0xff6a00, 0.7);
+      gfx.fillCircle(rearHand.x, rearHand.y, gSize - 3);
 
       // Punch fire trail
       if (st === STATE.PUNCH && t > 0.25) {
-        for (let i = 0; i < 5; i++) {
-          const a = (1 - i * 0.2) * 0.55;
-          const sz = gSize - i * 1.2;
-          gfx.fillStyle(i % 2 === 0 ? 0xff6a00 : 0xffaa00, Math.max(0, a));
-          gfx.fillCircle(leadHand.x - dir * i * 7, leadHand.y - i * 2, Math.max(2, sz));
+        for (let i = 0; i < 7; i++) {
+          const a = (1 - i * 0.14) * 0.6;
+          const sz = gSize - i * 1.3;
+          gfx.fillStyle(i % 3 === 0 ? 0xffcc00 : (i % 3 === 1 ? 0xff6a00 : 0xff3300), Math.max(0, a));
+          gfx.fillCircle(leadHand.x - dir * i * 8, leadHand.y - i * 2.5, Math.max(2, sz));
         }
       }
       // Kick fire burst at foot
       if (st === STATE.KICK && t > 0.2 && t < 0.8) {
-        const ba = 0.6 * (1 - Math.abs(t - 0.5) / 0.3);
+        const ba = 0.65 * (1 - Math.abs(t - 0.5) / 0.3);
         gfx.fillStyle(0xff6a00, Math.max(0, ba));
-        gfx.fillCircle(kickFoot.x, kickFoot.y, 10);
+        gfx.fillCircle(kickFoot.x, kickFoot.y, 14);
         gfx.fillStyle(0xffcc00, Math.max(0, ba * 0.6));
-        gfx.fillCircle(kickFoot.x + dir * 4, kickFoot.y - 3, 6);
+        gfx.fillCircle(kickFoot.x + dir * 5, kickFoot.y - 4, 8);
       }
 
     } else if (pk === 'ice') {
-      // ── ICE GUARD: Frost blade + hexagonal shield ──
-      const bladeLen = attackArm ? 32 : 24;
+      // ── ICE GUARD: Larger frost blade + hexagonal shield ──
+      const bladeLen = attackArm ? 40 : 28;
       const bex = leadHand.x + wnx * bladeLen;
       const bey = leadHand.y + wny * bladeLen;
-      // Blade with glow
-      gfx.lineStyle(2, 0xaaeeff, 0.4);
+      // Blade outer glow
+      gfx.lineStyle(5, 0x55aaff, 0.25);
       gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(bex, bey); gfx.strokePath();
-      gfx.lineStyle(3, 0x88ddff, 0.9);
+      // Blade body
+      gfx.lineStyle(3.5, 0x88ddff, 0.9);
       gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(bex, bey); gfx.strokePath();
-      gfx.fillStyle(0xccffff, 0.85);
-      gfx.fillCircle(bex, bey, 2.5);
+      // Bright core
+      gfx.lineStyle(1.5, 0xccffff, 0.7);
+      gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(bex, bey); gfx.strokePath();
+      gfx.fillStyle(0xccffff, 0.9);
+      gfx.fillCircle(bex, bey, 3);
 
       // Hexagonal ice shield on rear hand
-      const shR = st === STATE.BLOCK ? 18 : 13;
+      const shR = st === STATE.BLOCK ? 22 : 16;
       const pts = [];
       for (let i = 0; i < 6; i++) {
         const a = (Math.PI / 3) * i - Math.PI / 6;
         pts.push({ x: rearHand.x + Math.cos(a) * shR, y: rearHand.y + Math.sin(a) * shR });
       }
-      gfx.fillStyle(0x2266aa, 0.35);
+      gfx.fillStyle(0x1a3355, 0.5);
       gfx.fillPoints(pts, true);
-      gfx.lineStyle(2, 0x55aaff, 0.8);
+      gfx.lineStyle(2.5, 0x55aaff, 0.85);
       gfx.strokePoints(pts, true);
+      // Inner shield pattern
+      gfx.lineStyle(1, 0x88ddff, 0.3);
+      gfx.strokeCircle(rearHand.x, rearHand.y, shR * 0.5);
 
       // Frost trail during punch
       if (st === STATE.PUNCH && t > 0.25) {
-        for (let i = 0; i < 4; i++) {
-          const a = (1 - i * 0.25) * 0.4;
-          const ox = -dir * i * 5;
-          gfx.fillStyle(0xaaddff, Math.max(0, a));
-          gfx.fillRect(bex + ox - 1.5, bey - 1.5, 3, 3);
+        for (let i = 0; i < 5; i++) {
+          const a = (1 - i * 0.2) * 0.45;
+          const ox = -dir * i * 6;
+          gfx.fillStyle(i % 2 === 0 ? 0xaaddff : 0xccffff, Math.max(0, a));
+          gfx.fillRect(bex + ox - 2, bey - 2, 4, 4);
         }
       }
       // Frost kick
       if (st === STATE.KICK && t > 0.2 && t < 0.8) {
-        const ba = 0.5 * (1 - Math.abs(t - 0.5) / 0.3);
-        for (let i = 0; i < 3; i++) {
-          gfx.fillStyle(0xaaddff, Math.max(0, ba - i * 0.12));
-          gfx.fillRect(kickFoot.x + dir * i * 4 - 2, kickFoot.y - 2 - i * 3, 4, 4);
+        const ba = 0.55 * (1 - Math.abs(t - 0.5) / 0.3);
+        for (let i = 0; i < 4; i++) {
+          gfx.fillStyle(0xaaddff, Math.max(0, ba - i * 0.1));
+          gfx.fillRect(kickFoot.x + dir * i * 5 - 2, kickFoot.y - 2 - i * 3, 5, 5);
         }
       }
 
     } else if (pk === 'speed') {
-      // ── SPEED BLADE: Katana ──
-      const katanaLen = attackArm ? 52 : 40;
+      // ── SPEED BLADE: Longer katana ──
+      const katanaLen = attackArm ? 62 : 48;
       const kex = leadHand.x + wnx * katanaLen;
       const key2 = leadHand.y + wny * katanaLen;
+      // Blade glow
+      gfx.lineStyle(5, 0xffff44, 0.2);
+      gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(kex, key2); gfx.strokePath();
       // Blade body
-      gfx.lineStyle(2.5, 0xdddddd, 0.95);
+      gfx.lineStyle(3, 0xdddddd, 0.95);
       gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(kex, key2); gfx.strokePath();
       // Bright edge
-      gfx.lineStyle(1, 0xffffff, 0.7);
+      gfx.lineStyle(1.5, 0xffffff, 0.8);
       gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(kex, key2); gfx.strokePath();
       // Handle guard
       gfx.fillStyle(0xffff44, 0.9);
-      gfx.fillCircle(leadHand.x, leadHand.y, 3.5);
+      gfx.fillCircle(leadHand.x, leadHand.y, 4.5);
+      gfx.lineStyle(1, 0xffee00, 0.6);
+      gfx.strokeCircle(leadHand.x, leadHand.y, 4.5);
 
       // Slash arc trail during punch
       if (st === STATE.PUNCH && t > 0.2 && t < 0.85) {
-        const trailA = 0.45 * (1 - Math.abs(t - 0.5) / 0.35);
-        const arcCx = sX + dir * 22;
+        const trailA = 0.5 * (1 - Math.abs(t - 0.5) / 0.35);
+        const arcCx = sX + dir * 24;
         const arcCy = shoulderY + 15;
-        const arcR  = 58;
-        const sa = this.facingRight ? -Math.PI * 0.65 : -Math.PI * 0.35;
-        const ea = this.facingRight ?  Math.PI * 0.35 :  Math.PI * 0.65;
-        gfx.lineStyle(3, 0xffff88, Math.max(0, trailA));
+        const arcR  = 65;
+        const sa = this.facingRight ? -Math.PI * 0.7 : -Math.PI * 0.3;
+        const ea = this.facingRight ?  Math.PI * 0.3 :  Math.PI * 0.7;
+        gfx.lineStyle(4, 0xffff88, Math.max(0, trailA));
         gfx.beginPath(); gfx.arc(arcCx, arcCy, arcR, sa, ea, false); gfx.strokePath();
-        gfx.lineStyle(1.5, 0xffffcc, Math.max(0, trailA * 0.5));
-        gfx.beginPath(); gfx.arc(arcCx, arcCy, arcR + 8, sa + 0.12, ea - 0.12, false); gfx.strokePath();
+        gfx.lineStyle(2, 0xffffcc, Math.max(0, trailA * 0.5));
+        gfx.beginPath(); gfx.arc(arcCx, arcCy, arcR + 10, sa + 0.1, ea - 0.1, false); gfx.strokePath();
       }
       // Speed kick afterimage
       if (st === STATE.KICK && t > 0.2 && t < 0.8) {
-        const ba = 0.4 * (1 - Math.abs(t - 0.5) / 0.3);
-        gfx.lineStyle(3, 0xffff88, Math.max(0, ba));
+        const ba = 0.45 * (1 - Math.abs(t - 0.5) / 0.3);
+        gfx.lineStyle(4, 0xffff88, Math.max(0, ba));
         gfx.beginPath();
-        gfx.moveTo(kickFoot.x - dir * 15, kickFoot.y + 5);
-        gfx.lineTo(kickFoot.x + dir * 20, kickFoot.y - 3);
+        gfx.moveTo(kickFoot.x - dir * 18, kickFoot.y + 6);
+        gfx.lineTo(kickFoot.x + dir * 25, kickFoot.y - 4);
         gfx.strokePath();
-        gfx.lineStyle(1.5, 0xffffcc, Math.max(0, ba * 0.5));
+        gfx.lineStyle(2, 0xffffcc, Math.max(0, ba * 0.5));
         gfx.beginPath();
-        gfx.moveTo(kickFoot.x - dir * 10, kickFoot.y + 8);
-        gfx.lineTo(kickFoot.x + dir * 25, kickFoot.y);
+        gfx.moveTo(kickFoot.x - dir * 12, kickFoot.y + 10);
+        gfx.lineTo(kickFoot.x + dir * 30, kickFoot.y);
         gfx.strokePath();
       }
 
     } else if (pk === 'heavy') {
-      // ── HEAVY HAMMER: War hammer ──
-      const handleLen = attackArm ? 38 : 30;
+      // ── HEAVY HAMMER: Larger war hammer ──
+      const handleLen = attackArm ? 45 : 35;
       const hex2 = leadHand.x + wnx * handleLen;
       const hey2 = leadHand.y + wny * handleLen;
+      // Handle glow
+      gfx.lineStyle(7, 0x442211, 0.5);
+      gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(hex2, hey2); gfx.strokePath();
       // Handle
-      gfx.lineStyle(4, 0x664422, 1);
+      gfx.lineStyle(4.5, 0x664422, 1);
       gfx.beginPath(); gfx.moveTo(leadHand.x, leadHand.y); gfx.lineTo(hex2, hey2); gfx.strokePath();
 
       // Hammer head (rectangle perpendicular to handle)
-      const headW = attackArm ? 20 : 15;
-      const headH = attackArm ? 11 : 8;
+      const headW2 = attackArm ? 26 : 19;
+      const headH2 = attackArm ? 14 : 10;
       const pnx = -wny;  // perpendicular
       const pny =  wnx;
       const corners = [
-        { x: hex2 + wnx * headH/2 + pnx * headW/2, y: hey2 + wny * headH/2 + pny * headW/2 },
-        { x: hex2 + wnx * headH/2 - pnx * headW/2, y: hey2 + wny * headH/2 - pny * headW/2 },
-        { x: hex2 - wnx * headH/2 - pnx * headW/2, y: hey2 - wny * headH/2 - pny * headW/2 },
-        { x: hex2 - wnx * headH/2 + pnx * headW/2, y: hey2 - wny * headH/2 + pny * headW/2 },
+        { x: hex2 + wnx * headH2/2 + pnx * headW2/2, y: hey2 + wny * headH2/2 + pny * headW2/2 },
+        { x: hex2 + wnx * headH2/2 - pnx * headW2/2, y: hey2 + wny * headH2/2 - pny * headW2/2 },
+        { x: hex2 - wnx * headH2/2 - pnx * headW2/2, y: hey2 - wny * headH2/2 - pny * headW2/2 },
+        { x: hex2 - wnx * headH2/2 + pnx * headW2/2, y: hey2 - wny * headH2/2 + pny * headW2/2 },
       ];
-      gfx.fillStyle(0x7744bb, 0.9);
+      // Glow behind head
+      gfx.fillStyle(0xaa44ff, 0.2);
+      gfx.fillCircle(hex2, hey2, headW2 * 0.7);
+      // Head fill
+      gfx.fillStyle(0x6633aa, 0.95);
       gfx.fillPoints(corners, true);
-      gfx.lineStyle(1.5, 0xcc99ff, 0.85);
+      gfx.lineStyle(2, 0xcc99ff, 0.85);
       gfx.strokePoints(corners, true);
       // Metallic highlight
-      gfx.fillStyle(0xddaaff, 0.4);
+      gfx.fillStyle(0xddaaff, 0.35);
       gfx.fillPoints([corners[0], corners[1], {
         x: (corners[1].x + corners[2].x) / 2, y: (corners[1].y + corners[2].y) / 2
       }, {
@@ -805,18 +955,18 @@ class Player {
 
       // Impact shockwave during punch
       if (st === STATE.PUNCH && t > 0.35 && t < 0.75) {
-        const sa = 0.55 * (1 - Math.abs(t - 0.55) / 0.2);
-        const sr = 15 + (t - 0.35) * 90;
-        gfx.lineStyle(3, 0xaa44ff, Math.max(0, sa));
-        gfx.strokeCircle(hex2, hey2, sr);
-        gfx.lineStyle(1.5, 0xcc88ff, Math.max(0, sa * 0.5));
-        gfx.strokeCircle(hex2, hey2, sr * 0.6);
+        const sa2 = 0.6 * (1 - Math.abs(t - 0.55) / 0.2);
+        const sr2 = 18 + (t - 0.35) * 100;
+        gfx.lineStyle(4, 0xaa44ff, Math.max(0, sa2));
+        gfx.strokeCircle(hex2, hey2, sr2);
+        gfx.lineStyle(2, 0xcc88ff, Math.max(0, sa2 * 0.5));
+        gfx.strokeCircle(hex2, hey2, sr2 * 0.6);
       }
       // Ground impact during kick
       if (st === STATE.KICK && t > 0.3 && t < 0.7) {
-        const ba = 0.5 * (1 - Math.abs(t - 0.5) / 0.2);
-        const br = 12 + (t - 0.3) * 50;
-        gfx.lineStyle(2.5, 0xaa44ff, Math.max(0, ba));
+        const ba = 0.55 * (1 - Math.abs(t - 0.5) / 0.2);
+        const br = 15 + (t - 0.3) * 60;
+        gfx.lineStyle(3, 0xaa44ff, Math.max(0, ba));
         gfx.strokeCircle(kickFoot.x, kickFoot.y, br);
       }
     }
